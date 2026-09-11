@@ -1,98 +1,61 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Xếp Khối Vuông</title>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#111827">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Xếp Khối">
-<link rel="apple-touch-icon" href="./icon.svg">
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:Arial,sans-serif;background:#eef3f9;color:#1f2937;display:flex;justify-content:center;min-height:100vh}
-.app{width:min(96vw,560px);padding:12px}
-.top{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-.title{flex:1;background:#fff;padding:12px 14px;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
-.title h1{margin:0;font-size:21px}
-.title p{margin:3px 0 0;color:#6b7280;font-size:12px}
-.stat{background:#fff;padding:9px 11px;border-radius:16px;text-align:center;min-width:76px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
-.stat small{display:block;color:#6b7280;font-size:9px}.stat strong{font-size:19px}
-.card{background:#fff;border-radius:20px;padding:9px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
-.board{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;background:#dbe3ec;padding:5px;border-radius:14px;aspect-ratio:1/1}
-.cell{background:#fff;border-radius:4px}.cell.filled{background:#3b82f6}.cell.preview{background:#93c5fd}.cell.invalid{background:#fecaca}
-.info{text-align:center;height:34px;line-height:34px;color:#6b7280;font-size:13px;font-weight:700}
-.tray{display:flex;justify-content:space-around;min-height:110px;align-items:center}
-.slot{width:31%;height:100px;display:flex;align-items:center;justify-content:center;touch-action:none}
-.slot.used{opacity:0;pointer-events:none}
-.block{display:grid;gap:4px}.bc,.be{width:22px;height:22px}.bc{background:#f59e0b;border-radius:5px}
-.drag{position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-50%) scale(1.08);opacity:.9}
-.actions{display:flex;gap:8px}.btn{border:0;border-radius:12px;padding:12px;font-weight:700;background:#111827;color:#fff;flex:1}.sound{flex:0 0 48px;background:#e5e7eb;color:#111827}
-.overlay{position:fixed;inset:0;background:rgba(17,24,39,.6);display:flex;align-items:center;justify-content:center;padding:18px;z-index:10000}
-.overlay.hidden{display:none}.modal{background:white;border-radius:22px;padding:24px;width:min(100%,400px);text-align:center}.modal h2{font-size:28px;margin:8px 0}.big{font-size:42px;font-weight:800;margin:10px}.modal button{width:100%;border:0;background:#111827;color:#fff;border-radius:12px;padding:14px;font-weight:800;font-size:16px}
-.toast{position:fixed;top:12%;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:8px 14px;border-radius:999px;opacity:0;z-index:20000}.toast.show{animation:t 1.2s}@keyframes t{15%,75%{opacity:1}100%{opacity:0}}
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="top">
-    <div class="title"><h1>🧩 Xếp Khối</h1><p>Lấp đầy hàng hoặc cột để ghi điểm</p></div>
-    <div class="stat"><small>ĐIỂM</small><strong id="score">0</strong></div>
-    <div class="stat"><small>KỶ LỤC</small><strong id="best">0</strong></div>
-  </div>
-  <div class="card">
-    <div id="board" class="board"></div>
-    <div class="info">Kéo một khối vào bàn chơi</div>
-    <div id="tray" class="tray"></div>
-    <div class="actions">
-      <button class="btn" id="restart">Chơi lại</button>
-      <button class="btn sound" id="sound">🔊</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="start">
-  <div class="modal"><div style="font-size:52px">🧩</div><h2>Xếp Khối</h2><p>Chơi đơn giản, phù hợp điện thoại.</p><button id="startBtn">Bắt đầu</button></div>
-</div>
-<div class="overlay hidden" id="over">
-  <div class="modal"><div style="font-size:52px">🏁</div><h2>Hết lượt</h2><div class="big" id="final">0</div><p>Kỷ lục: <b id="finalBest">0</b></p><button id="again">Chơi lại</button></div>
-</div>
-<div id="toast" class="toast"></div>
-
-<script>
-const SIZE=10;
-const SHAPES=[[[1]],[[1,1]],[[1,1,1]],[[1,1,1,1]],[[1],[1]],[[1],[1],[1]],[[1],[1],[1],[1]],[[1,1],[1,1]],[[1,0],[1,1]],[[0,1],[1,1]],[[1,1],[1,0]],[[1,1],[0,1]],[[1,1,1],[0,1,0]]];
-let board=[],score=0,best=Number(localStorage.getItem('xkBest')||0),blocks=[],drag=null,ghost=null,soundOn=localStorage.getItem('xkSound')!=='off',audio=null;
-const B=document.getElementById('board'),T=document.getElementById('tray'),S=document.getElementById('score'),BE=document.getElementById('best');
-BE.textContent=best; document.getElementById('sound').textContent=soundOn?'🔊':'🔇';
-
-function empty(){board=Array.from({length:SIZE},()=>Array(SIZE).fill(0))}
-function renderBoard(){B.innerHTML='';for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){let x=document.createElement('div');x.className='cell'+(board[r][c]?' filled':'');x.dataset.r=r;x.dataset.c=c;B.appendChild(x)}}
-function shapeEl(shape,dragging=false){let e=document.createElement('div');e.className='block'+(dragging?' drag':'');e.style.gridTemplateColumns=`repeat(${shape[0].length},22px)`;shape.forEach(row=>row.forEach(v=>{let c=document.createElement('div');c.className=v?'bc':'be';e.appendChild(c)}));return e}
-function rnd(){return JSON.parse(JSON.stringify(SHAPES[Math.floor(Math.random()*SHAPES.length)]))}
-function gen(){blocks=Array.from({length:3},()=>({shape:rnd(),used:false}));if(!blocks.some(x=>fits(x.shape))){let ok=SHAPES.filter(fits);if(ok.length)blocks[0]={shape:JSON.parse(JSON.stringify(ok[Math.floor(Math.random()*ok.length)])),used:false}}renderTray()}
-function renderTray(){T.innerHTML='';blocks.forEach((b,i)=>{let s=document.createElement('div');s.className='slot'+(b.used?' used':'');s.appendChild(shapeEl(b.shape));s.addEventListener('pointerdown',e=>{if(!b.used)begin(e,i)});T.appendChild(s)})}
-function can(shape,row,col){for(let r=0;r<shape.length;r++)for(let c=0;c<shape[r].length;c++)if(shape[r][c]){let rr=row+r,cc=col+c;if(rr<0||cc<0||rr>=SIZE||cc>=SIZE||board[rr][cc])return false}return true}
-function fits(shape){for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++)if(can(shape,r,c))return true;return false}
-function begin(e,i){e.preventDefault();drag={i,shape:blocks[i].shape};ghost=shapeEl(drag.shape,true);document.body.appendChild(ghost);move(e.clientX,e.clientY);document.addEventListener('pointermove',pm,{passive:false});document.addEventListener('pointerup',pu)}
-function move(x,y){if(ghost){ghost.style.left=x+'px';ghost.style.top=(y-55)+'px'}}
-function clearPrev(){B.querySelectorAll('.preview,.invalid').forEach(x=>x.classList.remove('preview','invalid'))}
-function pm(e){if(!drag)return;e.preventDefault();move(e.clientX,e.clientY);clearPrev();let t=document.elementFromPoint(e.clientX,e.clientY-35);if(!t||!t.classList.contains('cell'))return;let r=+t.dataset.r,c=+t.dataset.c,ok=can(drag.shape,r,c);for(let y=0;y<drag.shape.length;y++)for(let x=0;x<drag.shape[y].length;x++)if(drag.shape[y][x]){let rr=r+y,cc=c+x;if(rr<SIZE&&cc<SIZE)B.children[rr*SIZE+cc]?.classList.add(ok?'preview':'invalid')}}
-function pu(e){if(!drag)return;let t=document.elementFromPoint(e.clientX,e.clientY-35),placed=false;if(t&&t.classList.contains('cell')){let r=+t.dataset.r,c=+t.dataset.c;if(can(drag.shape,r,c)){place(drag.shape,r,c);blocks[drag.i].used=true;placed=true}}ghost?.remove();ghost=null;drag=null;clearPrev();document.removeEventListener('pointermove',pm);document.removeEventListener('pointerup',pu);if(placed){clearLines();renderBoard();renderTray();if(blocks.every(x=>x.used))gen();if(!blocks.filter(x=>!x.used).some(x=>fits(x.shape)))setTimeout(gameOver,180)}}
-function place(shape,row,col){let n=0;for(let r=0;r<shape.length;r++)for(let c=0;c<shape[r].length;c++)if(shape[r][c]){board[row+r][col+c]=1;n++}score+=n;update();tone(440,.05)}
-function clearLines(){let rows=[],cols=[];for(let r=0;r<SIZE;r++)if(board[r].every(Boolean))rows.push(r);for(let c=0;c<SIZE;c++){let ok=true;for(let r=0;r<SIZE;r++)if(!board[r][c])ok=false;if(ok)cols.push(c)}let lines=rows.length+cols.length;if(!lines)return;rows.forEach(r=>board[r].fill(0));cols.forEach(c=>{for(let r=0;r<SIZE;r++)board[r][c]=0});score+=lines*20;update();show(`✨ Xóa ${lines} hàng/cột`);tone(760,.08)}
-function update(){S.textContent=score;if(score>best){best=score;BE.textContent=best;localStorage.setItem('xkBest',best)}}
-function reset(){score=0;update();empty();renderBoard();gen();document.getElementById('over').classList.add('hidden')}
-function gameOver(){document.getElementById('final').textContent=score;document.getElementById('finalBest').textContent=best;document.getElementById('over').classList.remove('hidden');tone(180,.18)}
-function show(t){let x=document.getElementById('toast');x.textContent=t;x.classList.remove('show');void x.offsetWidth;x.classList.add('show')}
-function tone(f,d){if(!soundOn)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audio)audio=new AC();let o=audio.createOscillator(),g=audio.createGain();o.frequency.value=f;g.gain.value=.035;o.connect(g);g.connect(audio.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d);o.stop(audio.currentTime+d)}
-document.getElementById('startBtn').onclick=()=>{document.getElementById('start').classList.add('hidden');reset()};
-document.getElementById('again').onclick=reset;document.getElementById('restart').onclick=reset;
-document.getElementById('sound').onclick=()=>{soundOn=!soundOn;localStorage.setItem('xkSound',soundOn?'on':'off');document.getElementById('sound').textContent=soundOn?'🔊':'🔇'};
-empty();renderBoard();gen();
-
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}))}
-</script>
-</body>
-</html>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Xếp Khối Vàng</title><style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden;font-family:Arial;background:#77748f;color:#fff}body{display:flex;justify-content:center}.app{width:min(100vw,520px);min-height:100vh;padding:12px;background:linear-gradient(#7e7a96,#706d86);display:flex;flex-direction:column}.head{height:130px;position:relative}.best{position:absolute;top:28px;left:8px;font-size:22px;font-weight:900;color:#ffc928}.best b{font-size:31px;margin-right:7px}.gear{position:absolute;right:5px;top:19px;font-size:38px;border:0;background:none;color:white}.score{position:absolute;left:0;right:0;top:68px;text-align:center;font-size:52px;font-weight:900}.board{aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;background:#4b4a55;padding:5px;border-radius:8px}.cell{position:relative;background:#3f3e49}.cell.filled:after,.pc{content:"";position:absolute;inset:2px;border-radius:4px;background:linear-gradient(145deg,#ffe55a,#ffbf00 62%,#e69a00);box-shadow:inset 3px 3px 0 #fff28a99,inset -4px -4px 0 #c8820066,0 1px 2px #0004}.cell.preview:after{content:"";position:absolute;inset:2px;background:linear-gradient(145deg,#fff08acc,#ffc400cc);border-radius:4px;box-shadow:0 0 10px #ffd431aa,inset 2px 2px 0 #fff8bbaa}.cell.invalid:after{content:"";position:absolute;inset:3px;background:#ff555599;border-radius:4px}.tray{flex:1;min-height:150px;display:flex;align-items:center;justify-content:space-around;padding-top:18px}.slot{width:31%;height:120px;display:flex;align-items:center;justify-content:center;touch-action:none}.slot.used{opacity:0;pointer-events:none}.piece{display:grid;gap:3px}.p,.e{width:23px;height:23px;position:relative}.p{border-radius:4px;background:linear-gradient(145deg,#ffe55a,#ffbf00 62%,#e69a00);box-shadow:inset 2px 2px 0 #fff28a99,inset -3px -3px 0 #c8820066}.ghost{position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-50%) scale(1.15);opacity:.95}.overlay{position:fixed;inset:0;background:#23202e99;display:flex;align-items:center;justify-content:center;padding:20px;z-index:10000}.hidden{display:none}.modal{width:min(92vw,380px);background:#f8f6ff;color:#403b4e;border-radius:22px;padding:24px;text-align:center}.modal h2{font-size:28px;margin:5px}.modal .big{font-size:46px;font-weight:900;margin:12px}.modal button{width:100%;padding:14px;border:0;border-radius:14px;background:#5d5872;color:white;font-weight:800;font-size:16px;margin-top:10px}.toast{position:fixed;top:14%;left:50%;transform:translateX(-50%);background:#302c42dd;padding:8px 14px;border-radius:999px;opacity:0;z-index:11000;font-weight:800}.toast.show{animation:t 1.1s}@keyframes t{15%,75%{opacity:1}100%{opacity:0}}@media(max-width:390px){.head{height:118px}.score{top:62px;font-size:46px}.p,.e{width:20px;height:20px}.tray{min-height:130px}}
+</style></head><body><div class="app"><div class="head"><div class="best"><b>♛</b><span id="best">0</span></div><button class="gear" id="gear">⚙</button><div class="score" id="score">0</div></div><div class="board" id="board"></div><div class="tray" id="tray"></div></div><div class="toast" id="toast"></div><div class="overlay hidden" id="over"><div class="modal"><div style="font-size:52px">🏆</div><h2>Hết lượt</h2><div class="big" id="final">0</div><div>Kỷ lục: <b id="fbest">0</b></div><button id="again">Chơi lại</button></div></div><div class="overlay hidden" id="settings"><div class="modal"><h2>Cài đặt</h2><button id="sound">Âm thanh: Bật</button><button id="new">Chơi ván mới</button><button id="close" style="background:#aaa4b5">Đóng</button></div></div><script>
+const N=8,SH=[[[1]],[[1,1]],[[1,1,1]],[[1,1,1,1]],[[1],[1]],[[1],[1],[1]],[[1],[1],[1],[1]],[[1,1],[1,1]],[[1,0],[1,0],[1,1]],[[0,1],[0,1],[1,1]],[[1,1],[1,0],[1,0]],[[1,1],[0,1],[0,1]],[[1,1,1],[0,1,0]],[[0,1,0],[1,1,1]],[[1,1,1],[1,1,1]],[[1,1,1],[1,0,0]],[[1,1,1],[0,0,1]]];let b=[],ps=[],sc=0,best=+(localStorage.gbest||0),drag=null,ghost=null,snapTarget=null,sound=localStorage.gsound!=="off",ac=null;const B=document.getElementById("board"),T=document.getElementById("tray"),S=document.getElementById("score"),BE=document.getElementById("best");BE.textContent=best;
+function resetB(){b=Array.from({length:N},()=>Array(N).fill(0))}function rb(){B.innerHTML="";for(let r=0;r<N;r++)for(let c=0;c<N;c++){let d=document.createElement("div");d.className="cell"+(b[r][c]?" filled":"");d.dataset.r=r;d.dataset.c=c;B.appendChild(d)}}function cp(x){return JSON.parse(JSON.stringify(x))}function rnd(){return cp(SH[Math.floor(Math.random()*SH.length)])}function pe(sh,g=false){let e=document.createElement("div");e.className="piece"+(g?" ghost":"");e.style.gridTemplateColumns=`repeat(${sh[0].length},${innerWidth<=390?20:23}px)`;sh.forEach(row=>row.forEach(v=>{let x=document.createElement("div");x.className=v?"p":"e";e.appendChild(x)}));return e}function can(sh,r,c){for(let y=0;y<sh.length;y++)for(let x=0;x<sh[y].length;x++)if(sh[y][x]){let yy=r+y,xx=c+x;if(yy<0||xx<0||yy>=N||xx>=N||b[yy][xx])return false}return true}function fits(sh){for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(can(sh,r,c))return true;return false}function gen(){ps=Array.from({length:3},()=>({shape:rnd(),used:false}));if(!ps.some(p=>fits(p.shape))){let f=SH.filter(fits);if(f.length)ps[0]={shape:cp(f[Math.floor(Math.random()*f.length)]),used:false}}rp()}function rp(){T.innerHTML="";ps.forEach((p,i)=>{let s=document.createElement("div");s.className="slot"+(p.used?" used":"");s.appendChild(pe(p.shape));s.onpointerdown=e=>{if(!p.used)start(e,i)};T.appendChild(s)})}function start(e,i){e.preventDefault();drag={i,shape:ps[i].shape};ghost=pe(drag.shape,true);document.body.appendChild(ghost);mv(e.clientX,e.clientY);document.addEventListener("pointermove",pm,{passive:false});document.addEventListener("pointerup",pu)}function mv(x,y){ghost.style.left=x+"px";ghost.style.top=y-75+"px"}function clearPrev(){B.querySelectorAll(".preview,.invalid").forEach(x=>x.classList.remove("preview","invalid"))}
+function nearestSnap(x,y,shape){
+  const rect=B.getBoundingClientRect();
+  const cellW=rect.width/N, cellH=rect.height/N;
+  const margin=Math.max(cellW,cellH)*1.35;
+  if(x<rect.left-margin||x>rect.right+margin||y<rect.top-margin||y>rect.bottom+margin)return null;
+  const shapeW=shape[0].length*cellW;
+  const shapeH=shape.length*cellH;
+  const estC=Math.round((x-rect.left-shapeW/2)/cellW);
+  const estR=Math.round((y-rect.top-shapeH/2)/cellH);
+  let best=null,bestD=Infinity;
+  for(let r=Math.max(0,estR-2);r<=Math.min(N-1,estR+2);r++){
+    for(let c=Math.max(0,estC-2);c<=Math.min(N-1,estC+2);c++){
+      if(!can(shape,r,c))continue;
+      const cx=rect.left+(c*cellW)+(shape[0].length*cellW)/2;
+      const cy=rect.top +(r*cellH)+(shape.length*cellH)/2;
+      const d=(cx-x)*(cx-x)+(cy-y)*(cy-y);
+      if(d<bestD){bestD=d;best={r,c}}
+    }
+  }
+  return best;
+}
+function showSnap(shape,pos){
+  clearPrev();
+  if(!pos)return;
+  for(let y=0;y<shape.length;y++)for(let x=0;x<shape[y].length;x++)if(shape[y][x]){
+    const yy=pos.r+y,xx=pos.c+x;
+    if(yy>=0&&xx>=0&&yy<N&&xx<N)B.children[yy*N+xx]?.classList.add("preview");
+  }
+}
+function pm(e){
+  if(!drag)return;
+  e.preventDefault();
+  mv(e.clientX,e.clientY);
+  snapTarget=nearestSnap(e.clientX,e.clientY-58,drag.shape);
+  showSnap(drag.shape,snapTarget);
+}
+function pu(e){
+  if(!drag)return;
+  let placed=false;
+  if(!snapTarget)snapTarget=nearestSnap(e.clientX,e.clientY-58,drag.shape);
+  if(snapTarget&&can(drag.shape,snapTarget.r,snapTarget.c)){
+    place(drag.shape,snapTarget.r,snapTarget.c);
+    ps[drag.i].used=true;
+    placed=true;
+  }
+  ghost?.remove();ghost=null;drag=null;snapTarget=null;
+  clearPrev();
+  document.removeEventListener("pointermove",pm);
+  document.removeEventListener("pointerup",pu);
+  if(placed){
+    clr();rb();rp();
+    if(ps.every(x=>x.used))gen();
+    if(!ps.filter(x=>!x.used).some(x=>fits(x.shape)))setTimeout(gameover,200);
+  }
+}function place(sh,r,c){let n=0;for(let y=0;y<sh.length;y++)for(let x=0;x<sh[y].length;x++)if(sh[y][x]){b[r+y][c+x]=1;n++}sc+=n*5;upd();tone(460,.05)}function clr(){let rs=[],cs=[];for(let r=0;r<N;r++)if(b[r].every(Boolean))rs.push(r);for(let c=0;c<N;c++){let ok=true;for(let r=0;r<N;r++)if(!b[r][c])ok=false;if(ok)cs.push(c)}let n=rs.length+cs.length;if(!n)return;rs.forEach(r=>b[r].fill(0));cs.forEach(c=>{for(let r=0;r<N;r++)b[r][c]=0});sc+=n*80;upd();show(`+${n*80}`);tone(850,.09)}function upd(){S.textContent=sc;if(sc>best){best=sc;BE.textContent=best;localStorage.gbest=best}}function show(x){let t=document.getElementById("toast");t.textContent=x;t.classList.remove("show");void t.offsetWidth;t.classList.add("show")}function tone(f,d){if(!sound)return;let A=window.AudioContext||window.webkitAudioContext;if(!A)return;if(!ac)ac=new A();let o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.035;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.stop(ac.currentTime+d)}function gameover(){document.getElementById("final").textContent=sc;document.getElementById("fbest").textContent=best;document.getElementById("over").classList.remove("hidden");tone(180,.2)}function newg(){sc=0;upd();resetB();rb();gen();document.getElementById("over").classList.add("hidden");document.getElementById("settings").classList.add("hidden")}document.getElementById("again").onclick=newg;document.getElementById("gear").onclick=()=>document.getElementById("settings").classList.remove("hidden");document.getElementById("close").onclick=()=>document.getElementById("settings").classList.add("hidden");document.getElementById("new").onclick=newg;document.getElementById("sound").onclick=()=>{sound=!sound;localStorage.gsound=sound?"on":"off";document.getElementById("sound").textContent="Âm thanh: "+(sound?"Bật":"Tắt")};document.getElementById("sound").textContent="Âm thanh: "+(sound?"Bật":"Tắt");resetB();rb();gen();
+</script></body></html>
