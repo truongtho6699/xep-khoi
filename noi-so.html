@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Nối Số</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#eef2ff;color:#1f2937}
+body{display:flex;justify-content:center}
+.app{width:min(100%,560px);min-height:100vh;padding:14px;background:linear-gradient(180deg,#f8faff,#eef2ff)}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.back{width:44px;height:44px;border:0;border-radius:14px;background:#fff;box-shadow:0 5px 18px #0001;font-size:22px}
+.title{flex:1}.title h1{margin:0;font-size:24px}.title p{margin:3px 0 0;color:#6b7280;font-size:12px}
+.panel{background:#fff;border-radius:20px;padding:14px;box-shadow:0 8px 28px #00000012}
+.quick{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.quick button{border:0;border-radius:11px;padding:9px 12px;background:#eef2ff;color:#4338ca;font-weight:800}
+.quick button.active{background:#4f46e5;color:#fff}
+.custom{display:flex;gap:8px;align-items:center}
+.custom input{flex:1;min-width:0;border:1px solid #d6d9e5;border-radius:12px;padding:11px;font-size:16px}
+.custom button{border:0;border-radius:12px;background:#111827;color:#fff;padding:11px 15px;font-weight:800}
+.stats{display:flex;justify-content:space-between;gap:8px;margin:12px 0}
+.stat{flex:1;background:#fff;border-radius:15px;padding:9px;text-align:center;box-shadow:0 5px 18px #0000000d}
+.stat small{display:block;color:#6b7280;font-size:10px}.stat b{font-size:20px}
+.game{position:relative;background:#fff;border-radius:20px;padding:10px;box-shadow:0 8px 28px #00000012}
+.grid{display:grid;gap:5px;position:relative;z-index:2;touch-action:none;user-select:none}
+.cell{aspect-ratio:1;border:1px solid #dde2ee;border-radius:10px;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:clamp(12px,4vw,20px);position:relative;z-index:2}
+.cell.next{outline:3px solid #fbbf24;outline-offset:-3px;background:#fffbeb}
+.cell.done{background:#4f46e5;color:#fff;border-color:#4f46e5}
+.cell.wrong{animation:shake .22s;background:#fee2e2}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.lines{position:absolute;left:10px;top:10px;width:calc(100% - 20px);height:calc(100% - 20px);z-index:1;pointer-events:none;overflow:visible}
+.lines line{stroke:#818cf8;stroke-width:5;stroke-linecap:round}
+.message{text-align:center;color:#6b7280;font-size:13px;margin-top:9px;min-height:20px}
+.overlay{position:fixed;inset:0;background:#11182788;display:flex;align-items:center;justify-content:center;padding:18px;z-index:999}
+.overlay.hidden{display:none}.modal{width:min(92vw,380px);background:white;border-radius:22px;padding:24px;text-align:center}.modal h2{margin:5px}.big{font-size:40px;font-weight:900;color:#4f46e5;margin:12px}.modal button{width:100%;border:0;border-radius:13px;padding:13px;background:#4f46e5;color:#fff;font-size:16px;font-weight:800}
+@media(max-width:380px){.cell{border-radius:7px}.grid{gap:3px}.app{padding:9px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <button class="back" onclick="location.href='./'">←</button>
+    <div class="title"><h1>🔢 Nối Số</h1><p>Nối lần lượt từ 1 đến số cuối</p></div>
+  </div>
+
+  <div class="panel">
+    <div class="quick" id="quick">
+      <button data-n="10">1–10</button>
+      <button data-n="20" class="active">1–20</button>
+      <button data-n="30">1–30</button>
+      <button data-n="50">1–50</button>
+      <button data-n="100">1–100</button>
+    </div>
+    <div class="custom">
+      <input id="range" type="number" min="5" max="100" value="20" inputmode="numeric" placeholder="Nhập số cuối">
+      <button id="start">Chơi</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><small>CẦN NỐI</small><b id="next">1</b></div>
+    <div class="stat"><small>THỜI GIAN</small><b id="time">0.0s</b></div>
+    <div class="stat"><small>TỐT NHẤT</small><b id="best">--</b></div>
+  </div>
+
+  <div class="game" id="game">
+    <svg class="lines" id="lines"></svg>
+    <div class="grid" id="grid"></div>
+    <div class="message" id="msg">Chạm hoặc kéo qua các số theo thứ tự.</div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="win">
+  <div class="modal">
+    <div style="font-size:52px">🎉</div>
+    <h2>Hoàn thành!</h2>
+    <div class="big" id="finalTime">0.0s</div>
+    <p id="recordText"></p>
+    <button id="again">Chơi lại</button>
+  </div>
+</div>
+
+<script>
+let maxN=20,nextN=1,startAt=0,timer=null,running=false,pointerDown=false;
+const grid=document.getElementById('grid'),lines=document.getElementById('lines'),nextEl=document.getElementById('next'),timeEl=document.getElementById('time'),bestEl=document.getElementById('best'),range=document.getElementById('range'),msg=document.getElementById('msg');
+
+function colsFor(n){if(n<=12)return 4;if(n<=20)return 5;if(n<=30)return 6;if(n<=42)return 7;if(n<=56)return 8;if(n<=72)return 9;return 10}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function bestKey(){return 'noiSoBest_'+maxN}
+function showBest(){const v=localStorage.getItem(bestKey());bestEl.textContent=v?(+v).toFixed(1)+'s':'--'}
+function newGame(n=maxN){
+  maxN=Math.max(5,Math.min(100,Number(n)||20));range.value=maxN;nextN=1;running=false;pointerDown=false;clearInterval(timer);timeEl.textContent='0.0s';nextEl.textContent='1';lines.innerHTML='';
+  const nums=shuffle(Array.from({length:maxN},(_,i)=>i+1));
+  const cols=colsFor(maxN);grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;grid.innerHTML='';
+  nums.forEach(v=>{const d=document.createElement('div');d.className='cell'+(v===1?' next':'');d.textContent=v;d.dataset.n=v;grid.appendChild(d)});
+  showBest();msg.textContent='Bắt đầu từ số 1.';document.getElementById('win').classList.add('hidden');
+}
+function startClock(){if(running)return;running=true;startAt=performance.now();timer=setInterval(()=>{timeEl.textContent=((performance.now()-startAt)/1000).toFixed(1)+'s'},100)}
+function center(el){
+  const r=el.getBoundingClientRect(),g=grid.getBoundingClientRect();
+  return {x:r.left-g.left+r.width/2,y:r.top-g.top+r.height/2}
+}
+function addLine(a,b){
+  const p1=center(a),p2=center(b),ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ln.setAttribute('x1',p1.x);ln.setAttribute('y1',p1.y);ln.setAttribute('x2',p2.x);ln.setAttribute('y2',p2.y);lines.appendChild(ln)
+}
+function choose(cell){
+  if(!cell||!cell.classList.contains('cell'))return;
+  const n=+cell.dataset.n;
+  if(n!==nextN){
+    if(n>nextN){cell.classList.remove('wrong');void cell.offsetWidth;cell.classList.add('wrong')}
+    return;
+  }
+  if(nextN===1)startClock();
+  const prev=grid.querySelector(`.cell[data-n="${nextN-1}"]`);
+  if(prev)addLine(prev,cell);
+  cell.classList.add('done');cell.classList.remove('next');
+  nextN++;
+  if(nextN>maxN){finish();return}
+  const nxt=grid.querySelector(`.cell[data-n="${nextN}"]`);if(nxt)nxt.classList.add('next');
+  nextEl.textContent=nextN;msg.textContent='Tiếp theo: '+nextN;
+}
+function finish(){
+  clearInterval(timer);running=false;
+  const sec=(performance.now()-startAt)/1000;timeEl.textContent=sec.toFixed(1)+'s';nextEl.textContent='✓';
+  const old=Number(localStorage.getItem(bestKey())||0);let record=false;
+  if(!old||sec<old){localStorage.setItem(bestKey(),sec.toFixed(3));record=true}
+  showBest();document.getElementById('finalTime').textContent=sec.toFixed(1)+'s';
+  document.getElementById('recordText').textContent=record?'🏆 Kỷ lục mới cho phạm vi 1–'+maxN:'Hoàn thành phạm vi 1–'+maxN;
+  document.getElementById('win').classList.remove('hidden')
+}
+grid.addEventListener('pointerdown',e=>{pointerDown=true;grid.setPointerCapture?.(e.pointerId);choose(e.target)});
+grid.addEventListener('pointermove',e=>{if(!pointerDown)return;const el=document.elementFromPoint(e.clientX,e.clientY);choose(el)});
+grid.addEventListener('pointerup',()=>pointerDown=false);grid.addEventListener('pointercancel',()=>pointerDown=false);
+document.querySelectorAll('#quick button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#quick button').forEach(x=>x.classList.remove('active'));b.classList.add('active');newGame(+b.dataset.n)});
+document.getElementById('start').onclick=()=>newGame(range.value);
+document.getElementById('again').onclick=()=>newGame(maxN);
+newGame(20);
+</script>
+</body></html>
