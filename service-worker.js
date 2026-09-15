@@ -1,5 +1,17 @@
-const CACHE="xep-khoi-v1";
-const ASSETS=["./","./index.html","./manifest.json","./icon.svg"];
-self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting()});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
-self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{let cp=resp.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return resp}).catch(()=>caches.match("./index.html"))))});
+const CACHE="mini-game-v3";
+self.addEventListener("install",event=>{
+  self.skipWaiting();
+});
+self.addEventListener("activate",event=>{
+  event.waitUntil(
+    caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>self.clients.claim())
+  );
+});
+self.addEventListener("fetch",event=>{
+  if(event.request.method!=="GET") return;
+  const url=new URL(event.request.url);
+  if(url.origin!==location.origin) return;
+  event.respondWith(
+    fetch(event.request,{cache:"no-store"}).catch(()=>caches.match(event.request))
+  );
+});
