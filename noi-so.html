@@ -23,8 +23,6 @@ body{display:flex;justify-content:center}
 .cell.wrong{animation:shake .22s;background:#fee2e2}
 @keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes pulse{50%{box-shadow:0 0 0 5px #fbbf2433}}
-.lines{position:absolute;left:10px;top:10px;width:calc(100% - 20px);height:calc(100% - 20px);z-index:1;pointer-events:none;overflow:visible}
-.lines line{stroke:#818cf8;stroke-width:5;stroke-linecap:round}
 .message{text-align:center;color:#6b7280;font-size:13px;margin-top:9px;min-height:20px}
 .combo{text-align:center;font-weight:900;color:#4f46e5;height:24px;line-height:24px}
 .overlay{position:fixed;inset:0;background:#11182788;display:flex;align-items:center;justify-content:center;padding:18px;z-index:999}
@@ -54,7 +52,7 @@ body{display:flex;justify-content:center}
 <div class="app">
   <div class="top">
     <button class="iconbtn" onclick="location.href='./'">←</button>
-    <div class="title"><h1>🔢 Nối Số</h1><p>Nối lần lượt các số nhanh nhất có thể</p></div>
+    <div class="title"><h1>🔢 Nối Số</h1><p>Tìm số tiếp theo và bấm nhanh nhất có thể</p></div>
     <button class="iconbtn" id="settingsBtn">⚙</button>
   </div>
 
@@ -67,9 +65,8 @@ body{display:flex;justify-content:center}
   <div class="combo" id="combo"></div>
 
   <div class="game" id="game">
-    <svg class="lines" id="lines"></svg>
     <div class="grid" id="grid"></div>
-    <div class="message" id="msg">Bắt đầu từ số 1.</div>
+    <div class="message" id="msg">Tìm số 1 và bấm.</div>
   </div>
 </div>
 
@@ -94,7 +91,7 @@ body{display:flex;justify-content:center}
 
     <div class="setting toggleRow">
       <div>
-        <div class="label" style="margin:0">Gợi ý số tiếp theo</div>
+        <div class="label" style="margin:0">Gợi ý ô số tiếp theo</div>
         <div style="font-size:11px;color:#6b7280;margin-top:3px">Mặc định tắt</div>
       </div>
       <div class="toggle" id="hintToggle"></div>
@@ -116,9 +113,9 @@ body{display:flex;justify-content:center}
 </div>
 
 <script>
-let maxN=20,nextN=1,startAt=0,timer=null,running=false,pointerDown=false,streak=0;
+let maxN=20,nextN=1,startAt=0,timer=null,running=false,streak=0;
 let hintOn=localStorage.getItem('noiSoHint')==='on';
-const grid=document.getElementById('grid'),lines=document.getElementById('lines'),progressEl=document.getElementById('progress'),timeEl=document.getElementById('time'),bestEl=document.getElementById('best'),range=document.getElementById('range'),msg=document.getElementById('msg'),comboEl=document.getElementById('combo');
+const grid=document.getElementById('grid'),progressEl=document.getElementById('progress'),timeEl=document.getElementById('time'),bestEl=document.getElementById('best'),range=document.getElementById('range'),msg=document.getElementById('msg'),comboEl=document.getElementById('combo');
 
 function colsFor(n){if(n<=12)return 4;if(n<=20)return 5;if(n<=30)return 6;if(n<=42)return 7;if(n<=56)return 8;if(n<=72)return 9;return 10}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -133,44 +130,51 @@ function updateHint(){
   document.getElementById('hintToggle').classList.toggle('on',hintOn);
 }
 function newGame(n=maxN){
-  maxN=Math.max(5,Math.min(100,Number(n)||20));range.value=maxN;nextN=1;running=false;pointerDown=false;streak=0;
-  clearInterval(timer);timeEl.textContent='0.0s';progressEl.textContent='0/'+maxN;lines.innerHTML='';comboEl.textContent='';
+  maxN=Math.max(5,Math.min(100,Number(n)||20));range.value=maxN;nextN=1;running=false;streak=0;
+  clearInterval(timer);timeEl.textContent='0.0s';progressEl.textContent='0/'+maxN;comboEl.textContent='';
   const nums=shuffle(Array.from({length:maxN},(_,i)=>i+1));
   const cols=colsFor(maxN);grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;grid.innerHTML='';
   nums.forEach(v=>{const d=document.createElement('div');d.className='cell';d.textContent=v;d.dataset.n=v;grid.appendChild(d)});
-  showBest();msg.textContent='Bắt đầu từ số 1.';document.getElementById('win').classList.add('hidden');updateHint();
+  showBest();msg.textContent='Tìm số 1 và bấm.';document.getElementById('win').classList.add('hidden');updateHint();
 }
 function startClock(){if(running)return;running=true;startAt=performance.now();timer=setInterval(()=>{timeEl.textContent=((performance.now()-startAt)/1000).toFixed(1)+'s'},100)}
-function center(el){
-  const r=el.getBoundingClientRect(),g=grid.getBoundingClientRect();
-  return {x:r.left-g.left+r.width/2,y:r.top-g.top+r.height/2}
-}
-function addLine(a,b){
-  const p1=center(a),p2=center(b),ln=document.createElementNS('http://www.w3.org/2000/svg','line');
-  ln.setAttribute('x1',p1.x);ln.setAttribute('y1',p1.y);ln.setAttribute('x2',p2.x);ln.setAttribute('y2',p2.y);lines.appendChild(ln)
-}
 function choose(cell){
   if(!cell||!cell.classList.contains('cell')||cell.classList.contains('done'))return;
   const n=+cell.dataset.n;
+
   if(n!==nextN){
     if(n>nextN){
-      streak=0;comboEl.textContent='';
-      cell.classList.remove('wrong');void cell.offsetWidth;cell.classList.add('wrong')
+      streak=0;
+      comboEl.textContent='';
+      cell.classList.remove('wrong');
+      void cell.offsetWidth;
+      cell.classList.add('wrong');
+      if(navigator.vibrate)navigator.vibrate(25);
+      msg.textContent='Chưa đúng. Hãy tìm số tiếp theo.';
     }
     return;
   }
+
   if(nextN===1)startClock();
-  const prev=grid.querySelector(`.cell[data-n="${nextN-1}"]`);
-  if(prev)addLine(prev,cell);
-  cell.classList.add('done');cell.classList.remove('hint');
+
+  cell.classList.add('done');
+  cell.classList.remove('hint');
+
   streak++;
   if(streak>=5)comboEl.textContent='🔥 Chuỗi '+streak;
+
   nextN++;
   progressEl.textContent=(nextN-1)+'/'+maxN;
-  if(nextN>maxN){finish();return}
-  msg.textContent=hintOn?'Tiếp tục theo số được gợi ý.':'Tiếp tục tìm số kế tiếp.';
+
+  if(nextN>maxN){
+    finish();
+    return;
+  }
+
+  msg.textContent=hintOn?'Tìm ô đang được gợi ý.':'Tìm số tiếp theo và bấm.';
   updateHint();
 }
+
 function finish(){
   clearInterval(timer);running=false;
   const sec=(performance.now()-startAt)/1000;timeEl.textContent=sec.toFixed(1)+'s';
@@ -181,9 +185,7 @@ function finish(){
   document.getElementById('win').classList.remove('hidden')
 }
 
-grid.addEventListener('pointerdown',e=>{pointerDown=true;grid.setPointerCapture?.(e.pointerId);choose(e.target)});
-grid.addEventListener('pointermove',e=>{if(!pointerDown)return;const el=document.elementFromPoint(e.clientX,e.clientY);choose(el)});
-grid.addEventListener('pointerup',()=>pointerDown=false);grid.addEventListener('pointercancel',()=>pointerDown=false);
+grid.addEventListener('click',e=>choose(e.target));
 
 document.getElementById('settingsBtn').onclick=()=>document.getElementById('settings').classList.remove('hidden');
 document.getElementById('closeSettings').onclick=()=>document.getElementById('settings').classList.add('hidden');
