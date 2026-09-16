@@ -1,4 +1,4 @@
-const CACHE_VERSION="mini-game-v10";
+const CACHE_VERSION="game-ca-voi-v15";
 
 self.addEventListener("install",event=>{
   self.skipWaiting();
@@ -16,10 +16,10 @@ self.addEventListener("fetch",event=>{
   if(event.request.method!=="GET") return;
 
   const url=new URL(event.request.url);
-  if(url.origin!==location.origin) return;
+  if(url.origin!==self.location.origin) return;
 
-  // HTML luôn ưu tiên mạng để nhận bản mới nhất.
-  if(event.request.mode==="navigate" || event.request.destination==="document"){
+  // Mọi lần mở ứng dụng/trang đều ưu tiên bản trên mạng.
+  if(event.request.mode==="navigate"){
     event.respondWith(
       fetch(event.request,{cache:"no-store"})
         .then(resp=>{
@@ -27,12 +27,15 @@ self.addEventListener("fetch",event=>{
           caches.open(CACHE_VERSION).then(c=>c.put(event.request,copy));
           return resp;
         })
-        .catch(()=>caches.match(event.request).then(r=>r||caches.match("./index.html")))
+        .catch(async()=>{
+          return (await caches.match(event.request)) ||
+                 (await caches.match("./index.html")) ||
+                 Response.error();
+        })
     );
     return;
   }
 
-  // Tài nguyên tĩnh: ưu tiên mạng, lỗi mới lấy cache.
   event.respondWith(
     fetch(event.request,{cache:"no-store"})
       .then(resp=>{
