@@ -63,5 +63,35 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 if('caches' in window){caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)))}
 </script>
 <div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 10</div>
+
+<script>
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+
+  let refreshing=false;
+
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(refreshing) return;
+    refreshing=true;
+    location.reload();
+  });
+
+  window.addEventListener('load',async()=>{
+    try{
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=10',{updateViaCache:'none'});
+      await reg.update();
+
+      // Khi quay lại ứng dụng sau một khoảng thời gian, kiểm tra bản mới.
+      let lastCheck=Date.now();
+      document.addEventListener('visibilitychange',async()=>{
+        if(document.visibilityState==='visible' && Date.now()-lastCheck>30000){
+          lastCheck=Date.now();
+          try{ await reg.update(); }catch(e){}
+        }
+      });
+    }catch(e){}
+  });
+})();
+</script>
 </body>
 </html>
