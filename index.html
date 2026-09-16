@@ -7,9 +7,9 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Game Cá Voi</title>
-<link rel="icon" href="./icon-ca-voi.svg?v=14" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=14">
-<link rel="manifest" href="./manifest.json?v=14">
+<link rel="icon" href="./icon-ca-voi.svg?v=15" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=15">
+<link rel="manifest" href="./manifest.json?v=15">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Game Cá Voi">
 <meta name="theme-color" content="#4da6ff">
@@ -39,23 +39,23 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 <body>
 <div class="wrap">
   <div class="hero">
-    <h1><img src="./icon-ca-voi.svg?v=14" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
+    <h1><img src="./icon-ca-voi.svg?v=15" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
     <p>Chọn trò chơi yêu thích và bắt đầu ngay</p>
   </div>
 
   <div class="games">
-    <a class="card block" href="./xep-khoi.html?v=14">
+    <a class="card block" href="./xep-khoi.html?v=15">
       <div class="ico gold">
-        <img src="./icon-xep-khoi.svg?v=14" alt="Icon Xếp Khối">
+        <img src="./icon-xep-khoi.svg?v=15" alt="Icon Xếp Khối">
       </div>
       <h2>Xếp Khối</h2>
       <p>Xếp các khối vào bàn, hoàn thành hàng hoặc cột để ghi điểm.</p>
       <span class="tag">Kéo & thả</span>
     </a>
 
-    <a class="card find" href="./noi-so.html?v=14">
+    <a class="card find" href="./noi-so.html?v=15">
       <div class="ico num">
-        <img src="./icon-tim-so.svg?v=14" alt="Icon Tìm Số">
+        <img src="./icon-tim-so.svg?v=15" alt="Icon Tìm Số">
       </div>
       <h2>Tìm Số</h2>
       <p>Tìm và bấm các số theo đúng thứ tự từ 1 đến N trong thời gian ngắn nhất.</p>
@@ -71,39 +71,50 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
   </div>
 </div>
 
-<script>
-if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()))}
-if('caches' in window){caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)))}
-</script>
-<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 14</div>
+<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 15</div>
 
 <script>
 (function(){
-  if(!('serviceWorker' in navigator)) return;
+  const APP_VERSION="15";
 
-  let refreshing=false;
+  function forceFresh(){
+    const u=new URL(location.href);
+    if(u.searchParams.get("v")!==APP_VERSION){
+      u.searchParams.set("v",APP_VERSION);
+      location.replace(u.toString());
+    }
+  }
 
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(refreshing) return;
-    refreshing=true;
-    location.reload();
-  });
-
-  window.addEventListener('load',async()=>{
+  async function checkVersion(){
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=14',{updateViaCache:'none'});
-      await reg.update();
-
-      // Khi quay lại ứng dụng sau một khoảng thời gian, kiểm tra bản mới.
-      let lastCheck=Date.now();
-      document.addEventListener('visibilitychange',async()=>{
-        if(document.visibilityState==='visible' && Date.now()-lastCheck>30000){
-          lastCheck=Date.now();
-          try{ await reg.update(); }catch(e){}
+      const r=await fetch("./app-version.json?t="+Date.now(),{cache:"no-store"});
+      const data=await r.json();
+      if(String(data.version)!==String(localStorage.getItem("gameCaVoiVersion")||"")){
+        localStorage.setItem("gameCaVoiVersion",String(data.version));
+        if(String(data.version)!==APP_VERSION){
+          location.replace("./?v="+encodeURIComponent(data.version));
+          return;
         }
-      });
+      }
     }catch(e){}
-  });
+  }
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",async()=>{
+      try{
+        const reg=await navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"});
+        await reg.update();
+      }catch(e){}
+      await checkVersion();
+      forceFresh();
+    });
+
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="visible") checkVersion();
+    });
+  }else{
+    window.addEventListener("load",()=>{checkVersion();forceFresh();});
+  }
 })();
 </script>
 </body>
