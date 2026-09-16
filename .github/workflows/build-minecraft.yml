@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - ".github/workflows/build-minecraft.yml"
+      - "tools/customize-block-world.py"
 
 permissions:
   contents: write
@@ -21,255 +22,8 @@ jobs:
           rm -rf /tmp/minecraft-clone
           git clone --depth 1 https://github.com/Vincent-P-essy/minecraft-clone.git /tmp/minecraft-clone
 
-      - name: Viet hoa va toi uu cho tre em
-        working-directory: /tmp/minecraft-clone
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          # Duong dan GitHub Pages
-          p=Path("vite.config.ts")
-          s=p.read_text()
-          s=s.replace(
-              'base: process.env.GITHUB_PAGES ? "/minecraft-clone/" : "/",',
-              'base: "/xep-khoi/minecraft/",'
-          )
-          p.write_text(s)
-
-          # Giao dien khoi dong tieng Viet
-          Path("index.html").write_text("""<!doctype html>
-          <html lang="vi">
-            <head>
-              <meta charset="UTF-8" />
-              <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-              <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-              />
-              <meta name="mobile-web-app-capable" content="yes" />
-              <meta name="apple-mobile-web-app-capable" content="yes" />
-              <meta name="theme-color" content="#87ceeb" />
-              <meta
-                name="description"
-                content="Block World – Game Cá Voi: thế giới khối 3D dành cho trẻ em, có thể đi lại, phá và đặt khối."
-              />
-              <title>Block World – Game Cá Voi</title>
-            </head>
-            <body>
-              <div id="app">
-                <div id="crosshair" aria-hidden="true"></div>
-                <div id="hotbar"></div>
-                <div id="overlay">
-                  <div id="overlay-content">
-                    <h1>🐳 Block World</h1>
-                    <h2>Game Cá Voi</h2>
-                    <p class="controls-desktop">
-                      W A S D để di chuyển · Chuột để nhìn · Phím cách để nhảy<br />
-                      Chuột trái để phá khối · Chuột phải để đặt khối<br />
-                      Phím 1–7 hoặc cuộn chuột để chọn khối
-                    </p>
-                    <p class="controls-touch">
-                      👈 Kéo bên trái để di chuyển · 👉 Vuốt bên phải để nhìn<br />
-                      Dùng 3 nút lớn <b>PHÁ · ĐẶT · NHẢY</b><br />
-                      Chạm vào ô khối phía dưới để chọn vật liệu
-                    </p>
-                    <button id="play-button" type="button">▶ BẮT ĐẦU CHƠI</button>
-                  </div>
-                </div>
-              </div>
-              <script type="module" src="/src/main.ts"></script>
-            </body>
-          </html>
-          """, encoding="utf-8")
-
-          # Viet hoa thong bao loi + HUD
-          p=Path("src/main.ts")
-          s=p.read_text()
-          s=s.replace('title.textContent = "the game couldn\'t start";',
-                      'title.textContent = "Không thể khởi động trò chơi";')
-          s=s.replace(
-              '"Try a hard refresh (Ctrl+Shift+R) or another browser (Chrome/Firefox). " +\n    "If it keeps happening, please open an issue with this exact message.";',
-              '"Hãy tải lại trang hoặc thử bằng Chrome/Safari. Nếu vẫn lỗi, hãy gửi lại ảnh màn hình để kiểm tra.";'
-          )
-          s=s.replace('qualityNote: () => \`cpu \${cpu.internalWidth.toString()}p\`,',
-                      'qualityNote: () => \`CPU \${cpu.internalWidth.toString()}p\`,')
-          p.write_text(s, encoding="utf-8")
-
-          p=Path("src/ui/hud.ts")
-          s=p.read_text()
-          s=s.replace(
-              'this.el.textContent = \`\${fps.toString()} fps · (\${pos}) · \${info.chunks.toString()} chunks · seed \${info.seed.toString()}\${note}\`;',
-              'this.el.textContent = \`\${fps.toString()} hình/giây · vị trí (\${pos}) · \${info.chunks.toString()} vùng · mã thế giới \${info.seed.toString()}\${note}\`;'
-          )
-          p.write_text(s, encoding="utf-8")
-
-          # Viet hoa ten khoi
-          p=Path("src/world/blocks.ts")
-          s=p.read_text()
-          names={
-            '"air"':'"không khí"',
-            '"grass"':'"cỏ"',
-            '"dirt"':'"đất"',
-            '"stone"':'"đá"',
-            '"sand"':'"cát"',
-            '"water"':'"nước"',
-            '"wood"':'"gỗ"',
-            '"leaves"':'"lá cây"',
-            '"bedrock"':'"đá nền"',
-            '"snow"':'"tuyết"',
-          }
-          for a,b in names.items(): s=s.replace(a,b)
-          p.write_text(s, encoding="utf-8")
-
-          # Them nut PHA rieng, doi nhan nut DAT/NHAY
-          p=Path("src/ui/touch-controls.ts")
-          s=p.read_text()
-          old='''    this.buttons.append(
-              this.makeButton("touch-place", "▣", {
-                press: () => {
-                  if (this.handlers.isActive()) this.handlers.onPlace();
-                },
-              }),
-              this.makeButton("touch-jump", "⤒", {
-                press: () => {
-                  this.jumpHeld = true;
-                  this.emit();
-                },
-                release: () => {
-                  this.jumpHeld = false;
-                  this.emit();
-                },
-              }),
-            );'''
-          new='''    this.buttons.append(
-              this.makeButton("touch-break", "⛏ PHÁ", {
-                press: () => {
-                  if (this.handlers.isActive()) this.handlers.onBreak();
-                },
-              }),
-              this.makeButton("touch-place", "▣ ĐẶT", {
-                press: () => {
-                  if (this.handlers.isActive()) this.handlers.onPlace();
-                },
-              }),
-              this.makeButton("touch-jump", "⬆ NHẢY", {
-                press: () => {
-                  this.jumpHeld = true;
-                  this.emit();
-                },
-                release: () => {
-                  this.jumpHeld = false;
-                  this.emit();
-                },
-              }),
-            );'''
-          if old not in s:
-              raise SystemExit("Khong tim thay khoi nut cam ung de sua")
-          s=s.replace(old,new)
-          s=s.replace('el.textContent = label;', 'el.textContent = label;\n    el.setAttribute("aria-label", label);')
-          p.write_text(s, encoding="utf-8")
-
-          # Toi uu CSS mobile cho tre em
-          p=Path("src/style.css")
-          s=p.read_text()
-          s += r"""
-          
-          /* ===== Game Ca Voi: giao dien tre em / dien thoai ===== */
-          #overlay-content {
-            width: min(92vw, 620px);
-            padding: 22px 18px;
-            border-radius: 22px;
-            background: rgba(12, 25, 42, 0.78);
-            box-shadow: 0 12px 40px rgba(0,0,0,.35);
-          }
-          #overlay-content h1 {
-            font-size: clamp(2rem, 8vw, 3.2rem);
-            color: #bfe9ff;
-            text-shadow: 0 3px 0 rgba(0,0,0,.25);
-          }
-          #overlay-content h2 {
-            margin: 2px 0 14px;
-            font-size: clamp(1.1rem, 4.5vw, 1.5rem);
-            color: #fff;
-          }
-          #overlay-content p {
-            line-height: 1.65;
-            font-size: 15px;
-          }
-          #play-button {
-            min-width: 210px;
-            min-height: 58px;
-            border-radius: 16px;
-            padding: 14px 24px;
-            font-size: 18px;
-            font-weight: 900;
-            box-shadow: 0 5px 0 #2e7d32;
-          }
-          #play-button:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #2e7d32;
-          }
-          .touch-buttons {
-            gap: 10px;
-            align-items: flex-end;
-          }
-          .touch-button {
-            width: 84px;
-            height: 64px;
-            border-radius: 18px;
-            font-size: 15px;
-            font-weight: 900;
-            background: rgba(8, 25, 42, .72);
-            border: 3px solid rgba(255,255,255,.72);
-            box-shadow: 0 4px 12px rgba(0,0,0,.35);
-            text-shadow: 0 1px 2px #000;
-          }
-          .touch-break { background: rgba(198, 55, 45, .78); }
-          .touch-place { background: rgba(34, 120, 72, .82); }
-          .touch-jump { background: rgba(38, 92, 180, .82); }
-          .touch-stick-base {
-            width: 150px;
-            height: 150px;
-            margin: -75px 0 0 -75px;
-            background: rgba(30, 80, 120, .24);
-            border: 4px solid rgba(255,255,255,.55);
-          }
-          .touch-stick-knob {
-            width: 68px;
-            height: 68px;
-            margin: -34px 0 0 -34px;
-            background: rgba(255,255,255,.72);
-            border: 3px solid rgba(255,255,255,.9);
-          }
-
-          @media (pointer: coarse) {
-            #fps { display: none; }
-            #crosshair { width: 24px; height: 24px; }
-            .hotbar-slot { width: 44px; height: 44px; }
-            #hotbar {
-              gap: 3px;
-              padding: 5px;
-              border-radius: 12px;
-              background: rgba(0,0,0,.5);
-            }
-            .touch-buttons {
-              right: max(10px, env(safe-area-inset-right));
-              bottom: calc(max(12px, env(safe-area-inset-bottom)) + 66px);
-            }
-          }
-
-          @media (pointer: coarse) and (max-width: 430px) {
-            .touch-button {
-              width: 72px;
-              height: 60px;
-              font-size: 13px;
-            }
-            .touch-buttons { gap: 7px; }
-            .hotbar-slot { width: 39px; height: 39px; }
-          }
-          """
-          p.write_text(s, encoding="utf-8")
-          PY
+      - name: Viet hoa toan bo giao dien
+        run: python3 tools/customize-block-world.py /tmp/minecraft-clone
 
       - name: Install and build
         working-directory: /tmp/minecraft-clone
@@ -287,30 +41,31 @@ jobs:
           cat > minecraft/SOURCE.md <<'EOF'
           # Block World – Game Cá Voi
           
-          Bản này được phát triển từ dự án mã nguồn mở:
+          Phát triển từ dự án mã nguồn mở:
           https://github.com/Vincent-P-essy/minecraft-clone
           
           Tác giả dự án gốc: Vincent Plessy
           Giấy phép: MIT
           
-          Các thay đổi của Game Cá Voi:
-          - Việt hóa giao diện.
-          - Đổi tên thành Block World – Game Cá Voi.
-          - Tối ưu điều khiển cảm ứng cho trẻ em.
-          - Thêm nút PHÁ, ĐẶT, NHẢY lớn trên điện thoại.
-          
-          Link chạy:
-          https://truongtho6699.github.io/xep-khoi/minecraft/
+          Phiên bản này đã Việt hóa giao diện và tối ưu điều khiển cảm ứng cho trẻ em.
           EOF
 
           python3 - <<'PY'
           from pathlib import Path
           p=Path("minecraft/index.html")
-          s=p.read_text()
-          back='''<a href="../" aria-label="Quay lại Game Cá Voi" style="position:fixed;z-index:99999;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));background:#10324dcc;color:#fff;text-decoration:none;padding:10px 13px;border-radius:14px;font:800 13px Arial,sans-serif;box-shadow:0 3px 10px #0005">← Game Cá Voi</a>'''
+          s=p.read_text(encoding="utf-8")
+          back='<a href="../" aria-label="Quay lại Game Cá Voi" style="position:fixed;z-index:99999;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));background:#10324ddd;color:#fff;text-decoration:none;padding:10px 13px;border-radius:14px;font:800 13px Arial,sans-serif;box-shadow:0 3px 10px #0005">← Game Cá Voi</a>'
           s=s.replace("<body>", "<body>"+back, 1)
-          p.write_text(s, encoding="utf-8")
+          p.write_text(s,encoding="utf-8")
           PY
+
+      - name: Kiem tra giao dien cu
+        run: |
+          if grep -RniE "minecraft-clone|Tap to play|WASD to move|left thumb to move|chunks · seed| fps · |% scale" minecraft/index.html minecraft/assets 2>/dev/null; then
+            echo "Phat hien chu giao dien tieng Anh con sot"
+            exit 1
+          fi
+          echo "Da kiem tra: khong con cac chu giao dien cu."
 
       - name: Commit build
         run: |
@@ -320,6 +75,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "Viet hoa Block World va toi uu dieu khien tre em"
+            git commit -m "Viet hoa day du Block World Game Ca Voi"
             git push
           fi
