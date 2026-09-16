@@ -7,9 +7,9 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Game Cá Voi</title>
-<link rel="icon" href="./icon-ca-voi.svg?v=13" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=13">
-<link rel="manifest" href="./manifest.json?v=13">
+<link rel="icon" href="./icon-ca-voi.svg?v=14" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=14">
+<link rel="manifest" href="./manifest.json?v=14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Game Cá Voi">
 <meta name="theme-color" content="#4da6ff">
@@ -25,10 +25,10 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 .card:active{transform:scale(.98)}
 .card::after{content:"";position:absolute;right:-25px;top:-25px;width:90px;height:90px;border-radius:50%;opacity:.14}
 .card.block::after{background:#f59e0b}
-.card.find::after{background:#4f46e5}
+.card.find::after{background:#4f46e5}.card.minecraft::after{background:#22c55e}
 .ico{width:76px;height:76px;border-radius:22px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden}
 .gold{background:linear-gradient(145deg,#fff7d1,#ffe08a)}
-.num{background:linear-gradient(145deg,#e8ecff,#cfd7ff)}
+.num{background:linear-gradient(145deg,#e8ecff,#cfd7ff)}.mine{background:linear-gradient(145deg,#dcfce7,#bbf7d0);font-size:44px}
 .ico img{width:58px;height:58px;display:block}
 .card h2{margin:0 0 6px;font-size:21px}
 .card p{margin:0;color:#6b7280;font-size:13px;line-height:1.5}
@@ -39,27 +39,34 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 <body>
 <div class="wrap">
   <div class="hero">
-    <h1><img src="./icon-ca-voi.svg?v=13" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
+    <h1><img src="./icon-ca-voi.svg?v=14" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
     <p>Chọn trò chơi yêu thích và bắt đầu ngay</p>
   </div>
 
   <div class="games">
-    <a class="card block" href="./xep-khoi.html?v=13">
+    <a class="card block" href="./xep-khoi.html?v=14">
       <div class="ico gold">
-        <img src="./icon-xep-khoi.svg?v=13" alt="Icon Xếp Khối">
+        <img src="./icon-xep-khoi.svg?v=14" alt="Icon Xếp Khối">
       </div>
       <h2>Xếp Khối</h2>
       <p>Xếp các khối vào bàn, hoàn thành hàng hoặc cột để ghi điểm.</p>
       <span class="tag">Kéo & thả</span>
     </a>
 
-    <a class="card find" href="./noi-so.html?v=13">
+    <a class="card find" href="./noi-so.html?v=14">
       <div class="ico num">
-        <img src="./icon-tim-so.svg?v=13" alt="Icon Tìm Số">
+        <img src="./icon-tim-so.svg?v=14" alt="Icon Tìm Số">
       </div>
       <h2>Tìm Số</h2>
       <p>Tìm và bấm các số theo đúng thứ tự từ 1 đến N trong thời gian ngắn nhất.</p>
       <span class="tag">1–10 đến 1–100</span>
+    </a>
+
+    <a class="card minecraft" href="./minecraft/">
+      <div class="ico mine">⛏️</div>
+      <h2>Block World 3D</h2>
+      <p>Khám phá thế giới khối 3D, di chuyển, phá và đặt khối ngay trên điện thoại hoặc máy tính.</p>
+      <span class="tag">3D · Sinh tồn tự do</span>
     </a>
   </div>
 </div>
@@ -68,7 +75,7 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()))}
 if('caches' in window){caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)))}
 </script>
-<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 13</div>
+<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 14</div>
 
 <script>
 (function(){
@@ -84,7 +91,7 @@ if('caches' in window){caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)
 
   window.addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=13',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=14',{updateViaCache:'none'});
       await reg.update();
 
       // Khi quay lại ứng dụng sau một khoảng thời gian, kiểm tra bản mới.
