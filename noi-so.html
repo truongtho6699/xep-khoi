@@ -30,7 +30,7 @@ body{display:flex;justify-content:center}
 .modal{width:min(92vw,390px);background:white;border-radius:22px;padding:22px;text-align:center}
 .modal h2{margin:5px 0 14px}
 .big{font-size:40px;font-weight:900;color:#4f46e5;margin:12px}
-.modal button{width:100%;border:0;border-radius:13px;padding:13px;background:#4f46e5;color:#fff;font-size:16px;font-weight:800;margin-top:9px}
+.modal button:not(.toggle):not(.quick button){width:100%;border:0;border-radius:13px;padding:13px;background:#4f46e5;color:#fff;font-size:16px;font-weight:800;margin-top:9px}
 .setting{border-top:1px solid #eceef5;padding:13px 0;text-align:left}
 .setting:first-of-type{border-top:0}
 .label{font-size:13px;font-weight:800;margin-bottom:9px}
@@ -40,10 +40,11 @@ body{display:flex;justify-content:center}
 .custom{display:flex;gap:7px;margin-top:8px}
 .custom input{flex:1;min-width:0;border:1px solid #d6d9e5;border-radius:11px;padding:10px;font-size:16px}
 .toggleRow{display:flex;align-items:center;justify-content:space-between}
-.toggle{width:54px;height:30px;border-radius:30px;background:#c7c9d3;position:relative}
-.toggle.on{background:#4f46e5}
-.toggle:after{content:"";position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.2s;box-shadow:0 2px 5px #0003}
+.toggle{width:54px!important;min-width:54px;height:30px!important;min-height:30px;border:0!important;border-radius:30px!important;background:#c7c9d3!important;position:relative;padding:0!important;margin:0!important;display:block;flex:0 0 54px}
+.toggle.on{background:#4f46e5!important}
+.toggle:after{content:"";position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.2s;box-shadow:0 2px 5px #0003;pointer-events:none}
 .toggle.on:after{left:27px}
+.toggle:focus-visible{outline:3px solid #a5b4fc;outline-offset:3px}
 .secondary{background:#e5e7eb!important;color:#374151!important}
 .modeNote{font-size:11px;color:#6b7280;margin-top:3px;line-height:1.35}
 @media(max-width:380px){.cell{border-radius:7px}.grid{gap:3px}.app{padding:9px}}
