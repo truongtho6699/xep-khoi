@@ -1,0 +1,83 @@
+name: Build Minecraft Clone
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build-minecraft.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Game Ca Voi
+        uses: actions/checkout@v4
+
+      - name: Download upstream source
+        run: |
+          rm -rf /tmp/minecraft-clone
+          git clone --depth 1 https://github.com/Vincent-P-essy/minecraft-clone.git /tmp/minecraft-clone
+
+      - name: Configure path
+        working-directory: /tmp/minecraft-clone
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("vite.config.ts")
+          s=p.read_text()
+          s=s.replace(
+              'base: process.env.GITHUB_PAGES ? "/minecraft-clone/" : "/",',
+              'base: "/xep-khoi/minecraft/",'
+          )
+          p.write_text(s)
+          PY
+
+      - name: Install and build
+        working-directory: /tmp/minecraft-clone
+        run: |
+          npm ci
+          npm run build
+
+      - name: Publish independent build
+        run: |
+          rm -rf minecraft
+          mkdir -p minecraft
+          cp -R /tmp/minecraft-clone/dist/. minecraft/
+          cp /tmp/minecraft-clone/LICENSE minecraft/LICENSE
+
+          cat > minecraft/SOURCE.md <<'EOF'
+          # Minecraft Clone - nguồn dự án
+          
+          Bản này được build từ dự án mã nguồn mở:
+          https://github.com/Vincent-P-essy/minecraft-clone
+          
+          Tác giả dự án gốc: Vincent Plessy
+          Giấy phép: MIT
+          
+          Bản build này được cấu hình để chạy độc lập tại:
+          https://truongtho6699.github.io/xep-khoi/minecraft/
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("minecraft/index.html")
+          s=p.read_text()
+          back='''<a href="../" style="position:fixed;z-index:99999;top:10px;left:10px;background:#111c;color:#fff;text-decoration:none;padding:9px 12px;border-radius:12px;font:700 13px Arial,sans-serif;box-shadow:0 2px 8px #0005">← Game Cá Voi</a>'''
+          s=s.replace("<body>", "<body>"+back, 1)
+          p.write_text(s)
+          PY
+
+      - name: Commit build
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add minecraft
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Build Minecraft Clone chạy độc lập"
+            git push
+          fi
