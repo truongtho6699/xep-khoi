@@ -1,14 +1,14 @@
 {
-  "name": "Kho Mini Game",
-  "short_name": "Mini Game",
+  "name": "Game Cá Voi",
+  "short_name": "Game Cá Voi",
   "start_url": "./?v=3",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef2ff",
-  "theme_color": "#4f46e5",
+  "background_color": "#dff7ff",
+  "theme_color": "#4da6ff",
   "icons": [
     {
-      "src": "./icon.svg",
+      "src": "./icon-ca-voi.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
