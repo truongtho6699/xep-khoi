@@ -90,12 +90,21 @@ body{display:flex;justify-content:center}
       </div>
     </div>
 
-    <div class="setting toggleRow">
-      <div>
-        <div class="label" style="margin:0">Chế độ ngẫu nhiên 4/10</div>
-        <div class="modeNote">Trong các số 1–10 chỉ hiện 4 số cùng lúc. Luôn có số cần tìm tiếp theo.</div>
+    <div class="setting">
+      <div class="toggleRow">
+        <div>
+          <div class="label" style="margin:0">Chế độ chọn số ngẫu nhiên</div>
+          <div class="modeNote">Ví dụ phạm vi 1–10, có thể rút ngẫu nhiên 3–7 số rồi tìm theo thứ tự tăng dần như chế độ đầy đủ.</div>
+        </div>
+        <div class="toggle" id="random4Toggle"></div>
       </div>
-      <div class="toggle" id="random4Toggle"></div>
+      <div class="quick" id="randomCountQuick" style="margin-top:10px">
+        <button data-c="3">3 số</button>
+        <button data-c="4" class="active">4 số</button>
+        <button data-c="5">5 số</button>
+        <button data-c="6">6 số</button>
+        <button data-c="7">7 số</button>
+      </div>
     </div>
 
     <div class="setting toggleRow">
@@ -125,30 +134,33 @@ body{display:flex;justify-content:center}
 let maxN=20,nextN=1,startAt=0,timer=null,running=false,streak=0;
 let hintOn=localStorage.getItem('noiSoHint')==='on';
 let random4On=localStorage.getItem('noiSoRandom4')==='on';
-let random4Visible=[];
+let randomCount=Math.max(3,Math.min(7,Number(localStorage.getItem('noiSoRandomCount')||4)));
+let randomTargets=[];
 const grid=document.getElementById('grid'),progressEl=document.getElementById('progress'),timeEl=document.getElementById('time'),bestEl=document.getElementById('best'),range=document.getElementById('range'),msg=document.getElementById('msg'),comboEl=document.getElementById('combo');
 
 function colsFor(n){if(n<=12)return 4;if(n<=20)return 5;if(n<=30)return 6;if(n<=42)return 7;if(n<=56)return 8;if(n<=72)return 9;return 10}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function bestKey(){return 'noiSoBest_'+(random4On?'R4_10':maxN)}
+function bestKey(){return 'noiSoBest_'+(random4On?('R'+randomCount+'_'+maxN):maxN)}
 function showBest(){const v=localStorage.getItem(bestKey());bestEl.textContent=v?(+v).toFixed(1)+'s':'--'}
 function updateHint(){
   grid.querySelectorAll('.hint').forEach(x=>x.classList.remove('hint'));
-  if(hintOn&&nextN<=maxN){
-    const n=grid.querySelector(`.cell[data-n="${nextN}"]`);
+  const target=random4On?randomTargets[nextN-1]:nextN;
+  if(hintOn&&target!=null){
+    const n=grid.querySelector(`.cell[data-n="${target}"]`);
     if(n)n.classList.add('hint');
   }
   document.getElementById('hintToggle').classList.toggle('on',hintOn);
   document.getElementById('random4Toggle').classList.toggle('on',random4On);
+  document.querySelectorAll('#randomCountQuick button').forEach(b=>b.classList.toggle('active',+b.dataset.c===randomCount));
 }
-function buildRandom4(){
-  const remaining=Array.from({length:10-nextN+1},(_,i)=>nextN+i);
-  if(!remaining.length){grid.innerHTML='';return}
-  const extras=shuffle(remaining.slice(1)).slice(0,3);
-  random4Visible=shuffle([nextN,...extras]);
-  grid.style.gridTemplateColumns='repeat(2,1fr)';
+function buildRandomSubset(){
+  const count=Math.max(3,Math.min(7,Math.min(randomCount,maxN)));
+  randomTargets=shuffle(Array.from({length:maxN},(_,i)=>i+1)).slice(0,count).sort((a,b)=>a-b);
+  const nums=shuffle([...randomTargets]);
+  const cols=colsFor(nums.length);
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
   grid.innerHTML='';
-  random4Visible.forEach(v=>{
+  nums.forEach(v=>{
     const d=document.createElement('div');
     d.className='cell';
     d.textContent=v;
@@ -158,24 +170,23 @@ function buildRandom4(){
 }
 
 function newGame(n=maxN){
-  if(random4On){
-    maxN=10;
-    range.value=10;
-  }else{
-    maxN=Math.max(5,Math.min(100,Number(n)||20));
-    range.value=maxN;
-  }
+  maxN=Math.max(5,Math.min(100,Number(n)||20));
+  range.value=maxN;
   nextN=1;running=false;streak=0;
-  clearInterval(timer);timeEl.textContent='0.0s';progressEl.textContent='0/'+maxN;comboEl.textContent='';
+  clearInterval(timer);timeEl.textContent='0.0s';comboEl.textContent='';
   if(random4On){
-    buildRandom4();
+    buildRandomSubset();
+    progressEl.textContent='0/'+randomTargets.length;
+    msg.textContent='Tìm số nhỏ nhất trong các số đang hiện.';
   }else{
+    randomTargets=[];
+    progressEl.textContent='0/'+maxN;
     const nums=shuffle(Array.from({length:maxN},(_,i)=>i+1));
     const cols=colsFor(maxN);grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;grid.innerHTML='';
     nums.forEach(v=>{const d=document.createElement('div');d.className='cell';d.textContent=v;d.dataset.n=v;grid.appendChild(d)});
+    msg.textContent='Tìm số 1 và bấm.';
   }
   showBest();
-  msg.textContent=random4On?'Tìm số 1 trong 4 số đang hiện.':'Tìm số 1 và bấm.';
   document.getElementById('win').classList.add('hidden');
   updateHint();
 }
@@ -183,9 +194,10 @@ function startClock(){if(running)return;running=true;startAt=performance.now();t
 function choose(cell){
   if(!cell||!cell.classList.contains('cell')||cell.classList.contains('done'))return;
   const n=+cell.dataset.n;
+  const target=random4On?randomTargets[nextN-1]:nextN;
 
-  if(n!==nextN){
-    if(n>nextN){
+  if(n!==target){
+    if(n>target){
       streak=0;
       comboEl.textContent='';
       cell.classList.remove('wrong');
@@ -206,16 +218,16 @@ function choose(cell){
   if(streak>=5)comboEl.textContent='🔥 Chuỗi '+streak;
 
   nextN++;
-  progressEl.textContent=(nextN-1)+'/'+maxN;
+  const total=random4On?randomTargets.length:maxN;
+  progressEl.textContent=(nextN-1)+'/'+total;
 
-  if(nextN>maxN){
+  if(nextN>total){
     finish();
     return;
   }
 
-  if(random4On) buildRandom4();
   msg.textContent=random4On
-    ? 'Tìm số '+nextN+' trong 4 số đang hiện.'
+    ? 'Tìm số tiếp theo lớn hơn trong các số đang hiện.'
     : (hintOn?'Tìm ô đang được gợi ý.':'Tìm số tiếp theo và bấm.');
   updateHint();
 }
@@ -226,7 +238,7 @@ function finish(){
   const old=Number(localStorage.getItem(bestKey())||0);let record=false;
   if(!old||sec<old){localStorage.setItem(bestKey(),sec.toFixed(3));record=true}
   showBest();document.getElementById('finalTime').textContent=sec.toFixed(1)+'s';
-  document.getElementById('recordText').textContent=random4On?(record?'🏆 Kỷ lục mới – chế độ 4/10':'Hoàn thành chế độ 4/10'):(record?'🏆 Kỷ lục mới cho phạm vi 1–'+maxN:'Hoàn thành phạm vi 1–'+maxN);
+  document.getElementById('recordText').textContent=random4On?(record?'🏆 Kỷ lục mới – '+randomCount+' số ngẫu nhiên trong 1–'+maxN:'Hoàn thành '+randomCount+' số ngẫu nhiên trong 1–'+maxN):(record?'🏆 Kỷ lục mới cho phạm vi 1–'+maxN:'Hoàn thành phạm vi 1–'+maxN);
   document.getElementById('win').classList.remove('hidden')
 }
 
@@ -235,16 +247,18 @@ grid.addEventListener('click',e=>choose(e.target));
 document.getElementById('settingsBtn').onclick=()=>document.getElementById('settings').classList.remove('hidden');
 document.getElementById('closeSettings').onclick=()=>document.getElementById('settings').classList.add('hidden');
 document.getElementById('hintToggle').onclick=()=>{hintOn=!hintOn;localStorage.setItem('noiSoHint',hintOn?'on':'off');updateHint()};
-document.getElementById('random4Toggle').onclick=()=>{random4On=!random4On;localStorage.setItem('noiSoRandom4',random4On?'on':'off');newGame(random4On?10:maxN);syncQuick()};
+document.getElementById('random4Toggle').onclick=()=>{random4On=!random4On;localStorage.setItem('noiSoRandom4',random4On?'on':'off');newGame(maxN);syncQuick()};
 document.getElementById('restart').onclick=()=>{newGame(maxN);document.getElementById('settings').classList.add('hidden')};
-document.getElementById('applyRange').onclick=()=>{random4On=false;localStorage.setItem('noiSoRandom4','off');newGame(range.value);document.getElementById('settings').classList.add('hidden');syncQuick()};
-document.querySelectorAll('#quick button').forEach(b=>b.onclick=()=>{random4On=false;localStorage.setItem('noiSoRandom4','off');document.querySelectorAll('#quick button').forEach(x=>x.classList.remove('active'));b.classList.add('active');newGame(+b.dataset.n);document.getElementById('settings').classList.add('hidden')});
+document.getElementById('applyRange').onclick=()=>{newGame(range.value);document.getElementById('settings').classList.add('hidden');syncQuick()};
+document.querySelectorAll('#quick button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#quick button').forEach(x=>x.classList.remove('active'));b.classList.add('active');newGame(+b.dataset.n);document.getElementById('settings').classList.add('hidden')});
+document.querySelectorAll('#randomCountQuick button').forEach(b=>b.onclick=()=>{randomCount=+b.dataset.c;localStorage.setItem('noiSoRandomCount',randomCount);document.querySelectorAll('#randomCountQuick button').forEach(x=>x.classList.toggle('active',x===b));if(random4On)newGame(maxN)});
 document.getElementById('again').onclick=()=>newGame(maxN);
 
 function syncQuick(){
-  document.querySelectorAll('#quick button').forEach(b=>b.classList.toggle('active',!random4On&&+b.dataset.n===maxN));
+  document.querySelectorAll('#quick button').forEach(b=>b.classList.toggle('active',+b.dataset.n===maxN));
   document.getElementById('random4Toggle').classList.toggle('on',random4On);
+  document.querySelectorAll('#randomCountQuick button').forEach(b=>b.classList.toggle('active',+b.dataset.c===randomCount));
 }
-newGame(random4On?10:20);syncQuick();
+newGame(20);syncQuick();
 </script>
 </body></html>
