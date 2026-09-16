@@ -33,23 +33,23 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 <body>
 <div class="wrap">
   <div class="hero">
-    <h1><img src="./icon-ca-voi.svg?v=11" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
+    <h1><img src="./icon-ca-voi.svg?v=12" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
     <p>Chọn trò chơi yêu thích và bắt đầu ngay</p>
   </div>
 
   <div class="games">
-    <a class="card block" href="./xep-khoi.html?v=10">
+    <a class="card block" href="./xep-khoi.html?v=12">
       <div class="ico gold">
-        <img src="./icon-xep-khoi.svg?v=10" alt="Icon Xếp Khối">
+        <img src="./icon-xep-khoi.svg?v=12" alt="Icon Xếp Khối">
       </div>
       <h2>Xếp Khối</h2>
       <p>Xếp các khối vào bàn, hoàn thành hàng hoặc cột để ghi điểm.</p>
       <span class="tag">Kéo & thả</span>
     </a>
 
-    <a class="card find" href="./noi-so.html?v=10">
+    <a class="card find" href="./noi-so.html?v=12">
       <div class="ico num">
-        <img src="./icon-tim-so.svg?v=10" alt="Icon Tìm Số">
+        <img src="./icon-tim-so.svg?v=12" alt="Icon Tìm Số">
       </div>
       <h2>Tìm Số</h2>
       <p>Tìm và bấm các số theo đúng thứ tự từ 1 đến N trong thời gian ngắn nhất.</p>
@@ -62,7 +62,7 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()))}
 if('caches' in window){caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)))}
 </script>
-<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 10</div>
+<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 12</div>
 
 <script>
 (function(){
@@ -78,7 +78,7 @@ if('caches' in window){caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)
 
   window.addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=10',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=12',{updateViaCache:'none'});
       await reg.update();
 
       // Khi quay lại ứng dụng sau một khoảng thời gian, kiểm tra bản mới.
