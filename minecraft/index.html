@@ -1,49 +1,43 @@
 <!doctype html>
-<html lang="vi">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Minecraft Clone</title>
-<meta name="theme-color" content="#73a942">
-<style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111;font-family:Arial,sans-serif}
-iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#111}
-.toolbar{
-  position:fixed;z-index:20;top:10px;left:10px;display:flex;gap:8px;
-  opacity:.88;transition:.2s
-}
-.toolbar:hover{opacity:1}
-.btn{
-  border:0;border-radius:12px;background:#111c;color:#fff;
-  padding:10px 12px;font-weight:700;font-size:13px;
-  text-decoration:none;box-shadow:0 2px 8px #0005
-}
-.notice{
-  position:fixed;z-index:30;left:50%;bottom:12px;transform:translateX(-50%);
-  background:#111c;color:#fff;padding:7px 11px;border-radius:999px;
-  font-size:11px;white-space:nowrap;pointer-events:none
-}
-@media(max-width:600px){
-  .toolbar{top:7px;left:7px}
-  .btn{padding:9px 10px;font-size:12px}
-  .notice{font-size:10px;bottom:7px}
-}
-</style>
-</head>
-<body>
-<iframe
-  src="https://vincent-p-essy.github.io/minecraft-clone/"
-  title="Minecraft Clone"
-  allow="fullscreen; autoplay; gamepad; pointer-lock"
-  allowfullscreen>
-</iframe>
-
-<div class="toolbar">
-  <a class="btn" href="../">← Game Cá Voi</a>
-  <a class="btn" href="https://github.com/Vincent-P-essy/minecraft-clone" target="_blank" rel="noopener">Mã nguồn</a>
-</div>
-
-<div class="notice">Bản thử nghiệm Minecraft Clone · mã nguồn MIT</div>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/xep-khoi/minecraft/favicon.svg" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#87ceeb" />
+    <meta
+      name="description"
+      content="A Minecraft-inspired voxel world in the browser: infinite procedural terrain, break and place blocks, no install."
+    />
+    <title>minecraft-clone</title>
+    <script type="module" crossorigin src="/xep-khoi/minecraft/assets/index-CNuDrRjJ.js"></script>
+    <link rel="stylesheet" crossorigin href="/xep-khoi/minecraft/assets/index-BGxAILgd.css">
+  </head>
+  <body><a href="../" style="position:fixed;z-index:99999;top:10px;left:10px;background:#111c;color:#fff;text-decoration:none;padding:9px 12px;border-radius:12px;font:700 13px Arial,sans-serif;box-shadow:0 2px 8px #0005">← Game Cá Voi</a>
+    <div id="app">
+      <div id="crosshair" aria-hidden="true"></div>
+      <div id="hotbar"></div>
+      <div id="overlay">
+        <div id="overlay-content">
+          <h1>minecraft-clone</h1>
+          <p class="controls-desktop">
+            WASD to move &middot; mouse to look &middot; space to jump<br />
+            left click breaks a block &middot; right click places one<br />
+            1-9 or scroll to pick a block
+          </p>
+          <p class="controls-touch">
+            left thumb to move &middot; drag the right side to look<br />
+            tap to break &middot; the buttons jump and place<br />
+            tap a slot to pick a block
+          </p>
+          <button id="play-button" type="button">Tap to play</button>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
