@@ -90,24 +90,12 @@ body{display:flex;justify-content:center}
       </div>
     </div>
 
-    <div class="setting">
-      <div class="toggleRow">
-        <div>
-          <div class="label" style="margin:0">Chế độ chọn số ngẫu nhiên</div>
-          <div class="modeNote">Chọn ngẫu nhiên từ 30% đến 100% số trong phạm vi. Ví dụ 1–10, chọn 50% sẽ hiện ngẫu nhiên 5 số và tìm theo thứ tự tăng dần như chế độ đầy đủ.</div>
-        </div>
-        <div class="toggle" id="random4Toggle"></div>
+    <div class="setting toggleRow">
+      <div>
+        <div class="label" style="margin:0">Chế độ chọn số ngẫu nhiên</div>
+        <div class="modeNote">Mỗi ván tự chọn ngẫu nhiên khoảng 30%–100% số trong phạm vi rồi tìm theo thứ tự tăng dần.</div>
       </div>
-      <div style="margin-top:10px">
-        <div class="label" style="margin-bottom:6px">Tỷ lệ số xuất hiện: <span id="randomPercentLabel">50%</span></div>
-        <input id="randomPercent" type="range" min="30" max="100" step="10" value="50" style="width:100%">
-        <div class="quick" id="randomPercentQuick" style="margin-top:8px">
-          <button data-p="30">30%</button>
-          <button data-p="50" class="active">50%</button>
-          <button data-p="70">70%</button>
-          <button data-p="100">100%</button>
-        </div>
-      </div>
+      <button type="button" class="toggle" id="random4Toggle" aria-label="Bật hoặc tắt chế độ ngẫu nhiên"></button>
     </div>
 
     <div class="setting toggleRow">
@@ -137,7 +125,7 @@ body{display:flex;justify-content:center}
 let maxN=20,nextN=1,startAt=0,timer=null,running=false,streak=0;
 let hintOn=localStorage.getItem('noiSoHint')==='on';
 let random4On=localStorage.getItem('noiSoRandom4')==='on';
-let randomPercent=Math.max(30,Math.min(100,Number(localStorage.getItem('noiSoRandomPercent')||50)));
+let randomPercent=50;
 let randomTargets=[];
 const grid=document.getElementById('grid'),progressEl=document.getElementById('progress'),timeEl=document.getElementById('time'),bestEl=document.getElementById('best'),range=document.getElementById('range'),msg=document.getElementById('msg'),comboEl=document.getElementById('combo');
 
@@ -154,11 +142,10 @@ function updateHint(){
   }
   document.getElementById('hintToggle').classList.toggle('on',hintOn);
   document.getElementById('random4Toggle').classList.toggle('on',random4On);
-  document.getElementById('randomPercent').value=randomPercent;
-  document.getElementById('randomPercentLabel').textContent=randomPercent+'%';
-  document.querySelectorAll('#randomPercentQuick button').forEach(b=>b.classList.toggle('active',+b.dataset.p===randomPercent));
+  document.getElementById('random4Toggle').setAttribute('aria-pressed',random4On?'true':'false');
 }
 function buildRandomSubset(){
+  randomPercent=(Math.floor(Math.random()*8)+3)*10;
   const count=Math.max(1,Math.min(maxN,Math.round(maxN*randomPercent/100)));
   randomTargets=shuffle(Array.from({length:maxN},(_,i)=>i+1)).slice(0,count).sort((a,b)=>a-b);
   const nums=shuffle([...randomTargets]);
@@ -182,7 +169,7 @@ function newGame(n=maxN){
   if(random4On){
     buildRandomSubset();
     progressEl.textContent='0/'+randomTargets.length;
-    msg.textContent='Tìm số nhỏ nhất trong các số đang hiện.';
+    msg.textContent='Có '+randomTargets.length+' số ngẫu nhiên. Tìm số nhỏ nhất trước.';
   }else{
     randomTargets=[];
     progressEl.textContent='0/'+maxN;
@@ -252,12 +239,10 @@ grid.addEventListener('click',e=>choose(e.target));
 document.getElementById('settingsBtn').onclick=()=>document.getElementById('settings').classList.remove('hidden');
 document.getElementById('closeSettings').onclick=()=>document.getElementById('settings').classList.add('hidden');
 document.getElementById('hintToggle').onclick=()=>{hintOn=!hintOn;localStorage.setItem('noiSoHint',hintOn?'on':'off');updateHint()};
-document.getElementById('random4Toggle').onclick=()=>{random4On=!random4On;localStorage.setItem('noiSoRandom4',random4On?'on':'off');newGame(maxN);syncQuick()};
+document.getElementById('random4Toggle').onclick=e=>{e.preventDefault();e.stopPropagation();random4On=!random4On;localStorage.setItem('noiSoRandom4',random4On?'on':'off');newGame(maxN);syncQuick()};
 document.getElementById('restart').onclick=()=>{newGame(maxN);document.getElementById('settings').classList.add('hidden')};
 document.getElementById('applyRange').onclick=()=>{newGame(range.value);document.getElementById('settings').classList.add('hidden');syncQuick()};
 document.querySelectorAll('#quick button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#quick button').forEach(x=>x.classList.remove('active'));b.classList.add('active');newGame(+b.dataset.n);document.getElementById('settings').classList.add('hidden')});
-document.getElementById('randomPercent').oninput=e=>{randomPercent=+e.target.value;localStorage.setItem('noiSoRandomPercent',randomPercent);document.getElementById('randomPercentLabel').textContent=randomPercent+'%';document.querySelectorAll('#randomPercentQuick button').forEach(b=>b.classList.toggle('active',+b.dataset.p===randomPercent));if(random4On)newGame(maxN)};
-document.querySelectorAll('#randomPercentQuick button').forEach(b=>b.onclick=()=>{randomPercent=+b.dataset.p;localStorage.setItem('noiSoRandomPercent',randomPercent);document.getElementById('randomPercent').value=randomPercent;document.getElementById('randomPercentLabel').textContent=randomPercent+'%';document.querySelectorAll('#randomPercentQuick button').forEach(x=>x.classList.toggle('active',x===b));if(random4On)newGame(maxN)});
 document.getElementById('again').onclick=()=>newGame(maxN);
 
 function syncQuick(){
@@ -265,8 +250,7 @@ function syncQuick(){
   document.getElementById('random4Toggle').classList.toggle('on',random4On);
   document.getElementById('randomPercent').value=randomPercent;
   document.getElementById('randomPercentLabel').textContent=randomPercent+'%';
-  document.querySelectorAll('#randomPercentQuick button').forEach(b=>b.classList.toggle('active',+b.dataset.p===randomPercent));
-}
+  }
 newGame(20);syncQuick();
 </script>
 </body></html>
