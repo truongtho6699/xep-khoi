@@ -21,9 +21,9 @@ self.addEventListener("fetch",event=>{
   // Giữ link cũ nhưng chuyển hai game sang lớp đồng bộ Supabase.
   if(event.request.mode==="navigate"){
     let target=event.request;
-    if(url.pathname.endsWith("/xep-khoi.html")){
+    if(!url.searchParams.has("raw") && url.pathname.endsWith("/xep-khoi.html")){
       target=new Request(new URL("./xep-khoi-cloud.html?v=17",self.location).href,{method:"GET",credentials:"same-origin"});
-    }else if(url.pathname.endsWith("/noi-so.html")){
+    }else if(!url.searchParams.has("raw") && url.pathname.endsWith("/noi-so.html")){
       target=new Request(new URL("./noi-so-cloud.html?v=17",self.location).href,{method:"GET",credentials:"same-origin"});
     }
 
