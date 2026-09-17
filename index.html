@@ -7,19 +7,20 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Game Cá Voi</title>
-<link rel="icon" href="./icon-ca-voi.svg?v=16" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=16">
-<link rel="manifest" href="./manifest.json?v=16">
+<link rel="icon" href="./icon-ca-voi.svg?v=17" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=17">
+<link rel="manifest" href="./manifest.json?v=17">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Game Cá Voi">
 <meta name="theme-color" content="#4da6ff">
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8fafc,#eef2ff);color:#1f2937;min-height:100vh}
-.wrap{width:min(94%,720px);margin:auto;padding:28px 0 40px}
-.hero{text-align:center;margin-bottom:24px}
+.wrap{width:min(94%,720px);margin:auto;padding:22px 0 40px}
+.hero{text-align:center;margin-bottom:16px}
 .hero h1{font-size:34px;margin:5px}
 .hero p{color:#6b7280;margin:7px}
+.accountbar{display:flex;align-items:center;gap:10px;background:#fff;border-radius:17px;padding:10px 12px;margin:12px 0 18px;box-shadow:0 8px 24px #0000000d;text-decoration:none;color:inherit}.accountico{width:42px;height:42px;border-radius:13px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:21px}.accounttext{flex:1;min-width:0}.accounttext b{display:block;font-size:14px}.accounttext span{font-size:11px;color:#6b7280}.arrow{font-size:22px;color:#9ca3af}
 .games{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .card{display:block;text-decoration:none;color:inherit;background:white;border-radius:22px;padding:20px;box-shadow:0 10px 30px #00000010;transition:.15s;position:relative;overflow:hidden}
 .card:active{transform:scale(.98)}
@@ -33,29 +34,38 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 .card h2{margin:0 0 6px;font-size:21px}
 .card p{margin:0;color:#6b7280;font-size:13px;line-height:1.5}
 .tag{display:inline-block;margin-top:14px;background:#f3f4f6;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;color:#4b5563}
-@media(max-width:520px){.games{grid-template-columns:1fr}.wrap{padding-top:20px}.hero h1{font-size:30px}}
+@media(max-width:520px){.games{grid-template-columns:1fr}.wrap{padding-top:16px}.hero h1{font-size:30px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hero">
-    <h1><img src="./icon-ca-voi.svg?v=16" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
+    <h1><img src="./icon-ca-voi.svg?v=17" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
     <p>Chọn trò chơi yêu thích và bắt đầu ngay</p>
   </div>
 
+  <a class="accountbar" href="./tai-khoan.html?v=17">
+    <div class="accountico">👤</div>
+    <div class="accounttext">
+      <b data-gcv-user>Khách</b>
+      <span><span data-gcv-auth-state>Chưa đăng nhập</span> · Tài khoản & bảng xếp hạng</span>
+    </div>
+    <div class="arrow">›</div>
+  </a>
+
   <div class="games">
-    <a class="card block" href="./xep-khoi.html?v=16">
+    <a class="card block" href="./xep-khoi.html?v=17">
       <div class="ico gold">
-        <img src="./icon-xep-khoi.svg?v=16" alt="Icon Xếp Khối">
+        <img src="./icon-xep-khoi.svg?v=17" alt="Icon Xếp Khối">
       </div>
       <h2>Xếp Khối</h2>
       <p>Xếp các khối vào bàn, hoàn thành hàng hoặc cột để ghi điểm.</p>
       <span class="tag">Kéo & thả</span>
     </a>
 
-    <a class="card find" href="./noi-so.html?v=16">
+    <a class="card find" href="./noi-so.html?v=17">
       <div class="ico num">
-        <img src="./icon-tim-so.svg?v=16" alt="Icon Tìm Số">
+        <img src="./icon-tim-so.svg?v=17" alt="Icon Tìm Số">
       </div>
       <h2>Tìm Số</h2>
       <p>Tìm và bấm các số theo đúng thứ tự từ 1 đến N trong thời gian ngắn nhất.</p>
@@ -71,16 +81,15 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
   </div>
 </div>
 
-<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 16</div>
+<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 17</div>
 
+<script type="module" src="./supabase-gcv.js?v=17"></script>
 <script>
 (function(){
-  // Không chuyển hướng/reload khi mở app để tránh giao diện bị "nhảy".
-  // Service worker chỉ kiểm tra cập nhật âm thầm.
   if("serviceWorker" in navigator){
     window.addEventListener("load",async()=>{
       try{
-        const reg=await navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"});
+        const reg=await navigator.serviceWorker.register("./service-worker.js?v=17",{updateViaCache:"none"});
         reg.update().catch(()=>{});
       }catch(e){}
     });
