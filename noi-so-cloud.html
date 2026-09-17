@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Tìm Số - Game Cá Voi</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#eef2ff}
+iframe{display:block;border:0;width:100%;height:100%}
+.account{position:fixed;right:10px;bottom:10px;z-index:20;width:46px;height:46px;border:0;border-radius:15px;background:#ffffffee;box-shadow:0 5px 18px #0002;font-size:22px}
+.toast{position:fixed;left:50%;bottom:66px;transform:translateX(-50%);z-index:21;background:#1f2937e8;color:#fff;padding:8px 12px;border-radius:999px;font:700 12px Arial;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<iframe id="game" src="./noi-so.html?v=17" title="Tìm Số"></iframe>
+<button class="account" id="account" aria-label="Tài khoản">👤</button>
+<div class="toast" id="toast"></div>
+<script type="module">
+import { GCV } from "./supabase-gcv.js?v=17";
+const frame=document.getElementById("game"), toast=document.getElementById("toast");
+let saved=false;
+
+document.getElementById("account").onclick=()=>location.href="./tai-khoan.html?v=17";
+
+function note(text){
+  toast.textContent=text;
+  toast.classList.add("show");
+  clearTimeout(note.t);
+  note.t=setTimeout(()=>toast.classList.remove("show"),2200);
+}
+function read(w,name,fallback){
+  try{return w.eval(name)}catch(_){return fallback}
+}
+async function saveResult(w,d){
+  if(saved)return;
+  saved=true;
+  const maxN=Number(read(w,"maxN",20))||20;
+  const randomOn=!!read(w,"random4On",false);
+  const randomPercent=Number(read(w,"randomPercent",100))||100;
+  const hint=!!read(w,"hintOn",false);
+  const targetCount=randomOn ? Number(read(w,"randomTargets.length",maxN))||maxN : maxN;
+  const sec=parseFloat((d.getElementById("finalTime")?.textContent||"0").replace(",","."));
+  const r=await GCV.saveResult({
+    gameCode:"tim-so",
+    score:targetCount,
+    level:maxN,
+    durationMs:Math.max(0,Math.round((Number.isFinite(sec)?sec:0)*1000)),
+    metadata:{
+      mode:randomOn?"random":"standard",
+      range:maxN,
+      percent:randomOn?randomPercent:100,
+      targets:targetCount,
+      hint
+    }
+  });
+  if(r.saved)note("☁️ Đã lưu thành tích");
+  else if(r.reason==="not_signed_in")note("Đăng nhập để lưu thành tích");
+  else note("Chưa lưu được lên mạng");
+}
+frame.addEventListener("load",()=>{
+  const w=frame.contentWindow, d=frame.contentDocument;
+  try{
+    const back=d.querySelector(".top .iconbtn");
+    if(back)back.onclick=()=>location.href="./?v=17";
+
+    // Vá lỗi cũ: hàm đồng bộ cài đặt có tham chiếu tới phần tử không tồn tại.
+    w.syncQuick=function(){
+      try{
+        const maxN=Number(read(w,"maxN",20))||20;
+        const randomOn=!!read(w,"random4On",false);
+        d.querySelectorAll("#quick button").forEach(b=>b.classList.toggle("active",+b.dataset.n===maxN));
+        d.getElementById("random4Toggle")?.classList.toggle("on",randomOn);
+      }catch(_){}
+    };
+
+    const originalFinish=w.finish;
+    if(typeof originalFinish==="function"){
+      w.finish=function(){
+        const out=originalFinish.apply(this,arguments);
+        setTimeout(()=>saveResult(w,d),0);
+        return out;
+      };
+    }
+    const originalNew=w.newGame;
+    if(typeof originalNew==="function"){
+      w.newGame=function(){
+        saved=false;
+        return originalNew.apply(this,arguments);
+      };
+    }
+  }catch(e){console.warn(e)}
+});
+</script>
+</body>
+</html>
