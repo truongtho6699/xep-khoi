@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tài khoản & thành tích - Game Cá Voi</title>
+<link rel="icon" href="./icon-ca-voi.svg?v=17" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#eef8ff,#eef2ff);color:#1f2937;min-height:100vh}
+.wrap{width:min(94%,760px);margin:auto;padding:16px 0 44px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.back{width:44px;height:44px;border:0;border-radius:14px;background:#fff;box-shadow:0 5px 18px #0001;font-size:22px}
+.title{flex:1}.title h1{font-size:24px;margin:0}.title p{margin:4px 0 0;color:#6b7280;font-size:12px}
+.card{background:#fff;border-radius:20px;padding:18px;box-shadow:0 8px 26px #00000010;margin-bottom:14px}
+.hidden{display:none!important}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;background:#eef2ff;padding:5px;border-radius:14px;margin-bottom:14px}
+.tab{border:0;padding:10px;border-radius:10px;background:transparent;font-weight:800;color:#6b7280}
+.tab.active{background:#fff;color:#4338ca;box-shadow:0 3px 10px #0001}
+label{display:block;font-size:12px;font-weight:800;margin:11px 0 5px}
+input{width:100%;border:1px solid #d9deea;border-radius:12px;padding:12px;font-size:16px;outline:none}
+input:focus{border-color:#818cf8;box-shadow:0 0 0 3px #818cf822}
+button.primary,.action{width:100%;border:0;border-radius:12px;padding:12px;background:#4f46e5;color:#fff;font-weight:800;font-size:15px;margin-top:12px}
+button.secondary{width:100%;border:0;border-radius:12px;padding:12px;background:#e5e7eb;color:#374151;font-weight:800;font-size:15px;margin-top:8px}
+.note{font-size:12px;color:#6b7280;line-height:1.5;margin-top:9px}
+.msg{min-height:20px;margin-top:10px;font-size:13px;font-weight:700}
+.msg.ok{color:#047857}.msg.err{color:#b91c1c}
+.profile{display:flex;align-items:center;gap:12px}.avatar{width:52px;height:52px;border-radius:16px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:28px}
+.profileText{flex:1}.profileText b{font-size:18px}.profileText small{display:block;color:#6b7280;margin-top:3px}
+.sectionTitle{font-size:16px;margin:0 0 10px}
+.searchRow{display:flex;gap:8px}.searchRow input{flex:1}.searchRow button{width:auto;margin:0;padding:0 16px;border:0;border-radius:12px;background:#4f46e5;color:#fff;font-weight:800}
+.list{display:grid;gap:7px}.row{display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;background:#f8fafc}.rank{width:30px;text-align:center;font-weight:900;color:#6366f1}.name{flex:1;font-weight:800}.value{font-weight:900}
+.muted{color:#9ca3af;text-align:center;font-size:12px;padding:12px}
+.boards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.boards{grid-template-columns:1fr}}
+.gameTag{display:inline-block;padding:4px 7px;border-radius:999px;background:#eef2ff;color:#4338ca;font-size:10px;font-weight:800;margin-right:6px}
+.historyItem{padding:10px 0;border-bottom:1px solid #eef0f5;font-size:13px}.historyItem:last-child{border-bottom:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <button class="back" onclick="location.href='./?v=17'">←</button>
+    <div class="title">
+      <h1>🐳 Tài khoản & thành tích</h1>
+      <p>Game Cá Voi</p>
+    </div>
+  </div>
+
+  <div class="card" id="loadingCard">Đang tải tài khoản...</div>
+
+  <div class="card hidden" id="authCard">
+    <div class="tabs">
+      <button class="tab active" id="loginTab">Đăng nhập</button>
+      <button class="tab" id="signupTab">Đăng ký</button>
+    </div>
+
+    <form id="loginForm">
+      <label>Email</label>
+      <input id="loginEmail" type="email" autocomplete="email" required placeholder="ten@email.com">
+      <label>Mật khẩu</label>
+      <input id="loginPassword" type="password" autocomplete="current-password" required minlength="6" placeholder="Ít nhất 6 ký tự">
+      <button class="primary" type="submit">Đăng nhập</button>
+    </form>
+
+    <form id="signupForm" class="hidden">
+      <label>Tên người chơi</label>
+      <input id="signupName" maxlength="40" required placeholder="Ví dụ: Cá Voi Xanh">
+      <label>Email</label>
+      <input id="signupEmail" type="email" autocomplete="email" required placeholder="ten@email.com">
+      <label>Mật khẩu</label>
+      <input id="signupPassword" type="password" autocomplete="new-password" required minlength="6" placeholder="Ít nhất 6 ký tự">
+      <button class="primary" type="submit">Tạo tài khoản</button>
+      <div class="note">Sau khi đăng ký, Supabase có thể gửi email xác nhận. Mở email và bấm liên kết xác nhận để đăng nhập.</div>
+    </form>
+    <div class="msg" id="authMsg"></div>
+  </div>
+
+  <div id="memberArea" class="hidden">
+    <div class="card">
+      <div class="profile">
+        <div class="avatar">🐳</div>
+        <div class="profileText">
+          <b id="profileName">Người chơi</b>
+          <small id="profileEmail"></small>
+        </div>
+      </div>
+      <label>Đổi tên hiển thị</label>
+      <input id="displayName" maxlength="40">
+      <button class="primary" id="saveName">Lưu tên</button>
+      <button class="secondary" id="logout">Đăng xuất</button>
+      <div class="msg" id="profileMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="sectionTitle">🔎 Tìm người chơi</h2>
+      <div class="searchRow">
+        <input id="playerSearch" placeholder="Nhập tên người chơi">
+        <button id="searchBtn">Tìm</button>
+      </div>
+      <div class="list" id="searchResults"></div>
+    </div>
+
+    <div class="boards">
+      <div class="card">
+        <h2 class="sectionTitle">🏆 Xếp Khối</h2>
+        <div class="list" id="blockBoard"><div class="muted">Đang tải...</div></div>
+      </div>
+      <div class="card">
+        <h2 class="sectionTitle">⏱ Tìm Số 1–20</h2>
+        <div class="note" style="margin:0 0 8px">Chỉ tính chế độ đầy đủ, không bật gợi ý.</div>
+        <div class="list" id="numberBoard"><div class="muted">Đang tải...</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="sectionTitle">📋 Kết quả gần đây của tôi</h2>
+      <div id="history"><div class="muted">Đang tải...</div></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { GCV } from "./supabase-gcv.js?v=17";
+
+const $=id=>document.getElementById(id);
+const authMsg=$("authMsg"), profileMsg=$("profileMsg");
+
+function setMsg(el,text,ok=false){
+  el.textContent=text||"";
+  el.className="msg "+(text?(ok?"ok":"err"):"");
+}
+function switchTab(which){
+  const login=which==="login";
+  $("loginTab").classList.toggle("active",login);
+  $("signupTab").classList.toggle("active",!login);
+  $("loginForm").classList.toggle("hidden",!login);
+  $("signupForm").classList.toggle("hidden",login);
+  setMsg(authMsg,"");
+}
+$("loginTab").onclick=()=>switchTab("login");
+$("signupTab").onclick=()=>switchTab("signup");
+
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault(); setMsg(authMsg,"Đang đăng nhập...",true);
+  const {error}=await GCV.signIn({email:$("loginEmail").value,password:$("loginPassword").value});
+  if(error){setMsg(authMsg,error.message);return}
+  setMsg(authMsg,"Đăng nhập thành công.",true);
+  await render();
+});
+
+$("signupForm").addEventListener("submit",async e=>{
+  e.preventDefault(); setMsg(authMsg,"Đang tạo tài khoản...",true);
+  const {data,error}=await GCV.signUp({
+    displayName:$("signupName").value,
+    email:$("signupEmail").value,
+    password:$("signupPassword").value
+  });
+  if(error){setMsg(authMsg,error.message);return}
+  if(data?.session){
+    setMsg(authMsg,"Tạo tài khoản thành công.",true);
+    await render();
+  }else{
+    setMsg(authMsg,"Đã tạo tài khoản. Hãy mở email và bấm liên kết xác nhận.",true);
+  }
+});
+
+$("saveName").onclick=async()=>{
+  setMsg(profileMsg,"Đang lưu...",true);
+  const {error}=await GCV.updateDisplayName($("displayName").value);
+  if(error){setMsg(profileMsg,error.message);return}
+  setMsg(profileMsg,"Đã cập nhật tên người chơi.",true);
+  await renderProfile();
+  await loadBoards();
+};
+$("logout").onclick=async()=>{
+  await GCV.signOut();
+  await render();
+};
+
+async function renderProfile(){
+  const user=await GCV.getUser();
+  const profile=await GCV.getProfile();
+  $("profileName").textContent=profile?.display_name||"Người chơi";
+  $("profileEmail").textContent=user?.email||"";
+  $("displayName").value=profile?.display_name||"";
+}
+
+function renderRows(el,rows,formatter){
+  if(!rows.length){el.innerHTML='<div class="muted">Chưa có dữ liệu.</div>';return}
+  el.innerHTML=rows.map(formatter).join("");
+}
+
+async function loadBoards(){
+  try{
+    const [blocks,numbers]=await Promise.all([
+      GCV.getXepKhoiLeaderboard(20),
+      GCV.getTimSo20Leaderboard(20)
+    ]);
+    renderRows($("blockBoard"),blocks,x=>`<div class="row"><div class="rank">${x.rank}</div><div class="name">${escapeHtml(x.display_name)}</div><div class="value">${x.score}</div></div>`);
+    renderRows($("numberBoard"),numbers,x=>`<div class="row"><div class="rank">${x.rank}</div><div class="name">${escapeHtml(x.display_name)}</div><div class="value">${(x.duration_ms/1000).toFixed(1)}s</div></div>`);
+  }catch(e){
+    $("blockBoard").innerHTML='<div class="muted">Không tải được bảng xếp hạng.</div>';
+    $("numberBoard").innerHTML='<div class="muted">Không tải được bảng xếp hạng.</div>';
+  }
+}
+
+async function loadHistory(){
+  try{
+    const rows=await GCV.getRecentResults(20);
+    if(!rows.length){$("history").innerHTML='<div class="muted">Chưa có kết quả được lưu.</div>';return}
+    $("history").innerHTML=rows.map(r=>{
+      const game=r.game_code==="xep-khoi"?"Xếp Khối":"Tìm Số";
+      const value=r.game_code==="xep-khoi"?`${r.score} điểm`:`${((r.duration_ms||0)/1000).toFixed(1)} giây`;
+      const d=new Date(r.played_at).toLocaleString("vi-VN");
+      return `<div class="historyItem"><span class="gameTag">${game}</span><b>${value}</b><div class="note" style="margin-top:4px">${d}</div></div>`;
+    }).join("");
+  }catch(e){
+    $("history").innerHTML='<div class="muted">Không tải được lịch sử.</div>';
+  }
+}
+
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+
+async function doSearch(){
+  const q=$("playerSearch").value.trim();
+  if(!q){$("searchResults").innerHTML="";return}
+  $("searchResults").innerHTML='<div class="muted">Đang tìm...</div>';
+  try{
+    const rows=await GCV.searchPlayers(q);
+    renderRows($("searchResults"),rows,x=>`<div class="row"><div>🐳</div><div class="name">${escapeHtml(x.display_name)}</div></div>`);
+  }catch(e){
+    $("searchResults").innerHTML='<div class="muted">Không tìm được người chơi.</div>';
+  }
+}
+$("searchBtn").onclick=doSearch;
+$("playerSearch").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch()});
+
+async function render(){
+  $("loadingCard").classList.remove("hidden");
+  $("authCard").classList.add("hidden");
+  $("memberArea").classList.add("hidden");
+  const user=await GCV.getUser();
+  $("loadingCard").classList.add("hidden");
+  if(!user){
+    $("authCard").classList.remove("hidden");
+    return;
+  }
+  $("memberArea").classList.remove("hidden");
+  await renderProfile();
+  await Promise.all([loadBoards(),loadHistory()]);
+}
+render();
+</script>
+</body>
+</html>
