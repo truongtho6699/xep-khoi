@@ -14,3 +14,5 @@ Phiên bản Game Cá Voi đã bổ sung:
 - Hiển thị người chơi khác trong thế giới 3D.
 - Đồng bộ vị trí gần thời gian thực.
 - Đồng bộ và lưu các khối cùng xây/phá qua Supabase.
+- Tự nhảy qua bậc 1 khối khi di chuyển.
+- Nút CỨU và tự cứu khi rơi xuống hố sâu.
