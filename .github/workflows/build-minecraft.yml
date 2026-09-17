@@ -7,6 +7,7 @@ on:
       - ".github/workflows/build-minecraft.yml"
       - "tools/customize-block-world.py"
       - "tools/add-block-world-multiplayer.py"
+      - "tools/fix-block-world-multiplayer.py"
 
 permissions:
   contents: write
@@ -28,6 +29,9 @@ jobs:
 
       - name: Them choi cung nhau
         run: python3 tools/add-block-world-multiplayer.py /tmp/minecraft-clone
+
+      - name: Sua loi TypeScript multiplayer
+        run: python3 tools/fix-block-world-multiplayer.py /tmp/minecraft-clone
 
       - name: Install and build
         working-directory: /tmp/minecraft-clone
