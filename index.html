@@ -7,9 +7,9 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Game Cá Voi</title>
-<link rel="icon" href="./icon-ca-voi.svg?v=16" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=16">
-<link rel="manifest" href="./manifest.json?v=16">
+<link rel="icon" href="./icon-ca-voi.svg?v=17" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=17">
+<link rel="manifest" href="./manifest.json?v=17">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Game Cá Voi">
 <meta name="theme-color" content="#4da6ff">
@@ -32,30 +32,36 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 .ico img{width:58px;height:58px;display:block}
 .card h2{margin:0 0 6px;font-size:21px}
 .card p{margin:0;color:#6b7280;font-size:13px;line-height:1.5}
-.tag{display:inline-block;margin-top:14px;background:#f3f4f6;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;color:#4b5563}
+.tag{display:inline-block;margin-top:14px;background:#f3f4f6;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;color:#4b5563}.accountBar{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;background:#fff;border-radius:18px;padding:12px 14px;margin:0 0 16px;box-shadow:0 7px 22px #0000000d}.accountIcon{width:42px;height:42px;border-radius:14px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:24px}.accountText{flex:1}.accountText b{display:block}.accountText small{display:block;color:#6b7280;margin-top:3px}.accountGo{font-size:26px;color:#9ca3af}
 @media(max-width:520px){.games{grid-template-columns:1fr}.wrap{padding-top:20px}.hero h1{font-size:30px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hero">
-    <h1><img src="./icon-ca-voi.svg?v=16" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
+    <h1><img src="./icon-ca-voi.svg?v=17" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
     <p>Chọn trò chơi yêu thích và bắt đầu ngay</p>
   </div>
 
+  <a class="accountBar" href="./tai-khoan.html?v=17">
+    <div class="accountIcon">👤</div>
+    <div class="accountText"><b data-gcv-user>Khách</b><small>Đăng nhập để lưu điểm, xem thành tích và tìm người chơi</small></div>
+    <div class="accountGo">›</div>
+  </a>
+
   <div class="games">
-    <a class="card block" href="./xep-khoi.html?v=16">
+    <a class="card block" href="./xep-khoi.html?v=17">
       <div class="ico gold">
-        <img src="./icon-xep-khoi.svg?v=16" alt="Icon Xếp Khối">
+        <img src="./icon-xep-khoi.svg?v=17" alt="Icon Xếp Khối">
       </div>
       <h2>Xếp Khối</h2>
       <p>Xếp các khối vào bàn, hoàn thành hàng hoặc cột để ghi điểm.</p>
       <span class="tag">Kéo & thả</span>
     </a>
 
-    <a class="card find" href="./noi-so.html?v=16">
+    <a class="card find" href="./noi-so.html?v=17">
       <div class="ico num">
-        <img src="./icon-tim-so.svg?v=16" alt="Icon Tìm Số">
+        <img src="./icon-tim-so.svg?v=17" alt="Icon Tìm Số">
       </div>
       <h2>Tìm Số</h2>
       <p>Tìm và bấm các số theo đúng thứ tự từ 1 đến N trong thời gian ngắn nhất.</p>
@@ -71,7 +77,7 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
   </div>
 </div>
 
-<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 16</div>
+<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 17</div>
 
 <script>
 (function(){
@@ -93,5 +99,6 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
   }
 })();
 </script>
+<script type="module" src="./supabase-gcv.js?v=17"></script>
 </body>
 </html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Xếp Khối - Game Cá Voi</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#77748f}
+iframe{display:block;border:0;width:100%;height:100%}
+.account{position:fixed;right:10px;bottom:10px;z-index:20;width:46px;height:46px;border:0;border-radius:15px;background:#ffffffee;box-shadow:0 5px 18px #0003;font-size:22px}
+.toast{position:fixed;left:50%;bottom:66px;transform:translateX(-50%);z-index:21;background:#1f2937e8;color:#fff;padding:8px 12px;border-radius:999px;font:700 12px Arial;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<iframe id="game" src="./xep-khoi.html?raw=1&v=17" title="Xếp Khối"></iframe>
+<button class="account" id="account" aria-label="Tài khoản">👤</button>
+<div class="toast" id="toast"></div>
+<script type="module">
+import { GCV } from "./supabase-gcv.js?v=17";
+const frame=document.getElementById("game"), toast=document.getElementById("toast");
+let saved=false, startedAt=Date.now();
+
+document.getElementById("account").onclick=()=>location.href="./tai-khoan.html?v=17";
+
+function note(text){
+  toast.textContent=text;
+  toast.classList.add("show");
+  clearTimeout(note.t);
+  note.t=setTimeout(()=>toast.classList.remove("show"),2200);
+}
+function read(w,name,fallback){
+  try{return w.eval(name)}catch(_){return fallback}
+}
+async function saveResult(w){
+  if(saved)return;
+  saved=true;
+  const score=Number(read(w,"sc",0))||0;
+  const turns=Number(read(w,"turns",1))||1;
+  const rescues=Number(read(w,"rescues",3));
+  const r=await GCV.saveResult({
+    gameCode:"xep-khoi",
+    score,
+    level:Math.max(1,turns),
+    durationMs:Date.now()-startedAt,
+    metadata:{board_size:8,rescues_used:Math.max(0,3-rescues)}
+  });
+  if(r.saved)note("☁️ Đã lưu thành tích");
+  else if(r.reason==="not_signed_in")note("Đăng nhập để lưu thành tích");
+  else note("Chưa lưu được lên mạng");
+}
+frame.addEventListener("load",()=>{
+  const w=frame.contentWindow, d=frame.contentDocument;
+  try{
+    const back=d.getElementById("backBtn");
+    if(back)back.onclick=()=>location.href="./?v=17";
+    const originalGameOver=w.gameover;
+    if(typeof originalGameOver==="function"){
+      w.gameover=function(){
+        const out=originalGameOver.apply(this,arguments);
+        setTimeout(()=>saveResult(w),0);
+        return out;
+      };
+    }
+    const resetRound=()=>{saved=false;startedAt=Date.now()};
+    d.getElementById("again")?.addEventListener("click",resetRound);
+    d.getElementById("new")?.addEventListener("click",resetRound);
+  }catch(e){console.warn(e)}
+});
+</script>
+</body>
+</html>
