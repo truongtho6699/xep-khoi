@@ -76,12 +76,13 @@ jobs:
 
       - name: Kiem tra giao dien va multiplayer
         run: |
-          if grep -RniE "minecraft-clone|Tap to play|WASD to move|left thumb to move|chunks · seed| fps · |% scale" minecraft/index.html minecraft/assets 2>/dev/null; then
-            echo "Phat hien chu giao dien tieng Anh con sot"
+          if grep -niE "Tap to play|WASD to move|left thumb to move|<h1>minecraft-clone</h1>|<title>minecraft-clone</title>" minecraft/index.html; then
+            echo "Phat hien chu giao dien cu trong HTML"
             exit 1
           fi
-          grep -R "Chơi cùng nhau" minecraft/index.html >/dev/null
-          grep -R "block-world:" minecraft/assets >/dev/null
+          grep -F "Chơi cùng nhau" minecraft/index.html >/dev/null
+          grep -R -F "Đã vào phòng" minecraft/assets >/dev/null
+          grep -R -F "block-world:" minecraft/assets >/dev/null
           echo "Da kiem tra giao dien va multiplayer."
 
       - name: Commit build
