@@ -9,7 +9,8 @@ Giấy phép: MIT
 Phiên bản Game Cá Voi đã bổ sung:
 - Việt hóa giao diện.
 - Điều khiển cảm ứng cho trẻ em.
-- Tạo phòng / vào phòng bằng mã.
+- Chỉ quản trị viên được tạo phòng.
+- Người chơi chọn phòng từ danh sách có sẵn.
 - Hiển thị người chơi khác trong thế giới 3D.
 - Đồng bộ vị trí gần thời gian thực.
 - Đồng bộ và lưu các khối cùng xây/phá qua Supabase.

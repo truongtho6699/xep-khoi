@@ -10,8 +10,8 @@
     <meta name="theme-color" content="#87ceeb" />
     <meta name="description" content="Block World – Game Cá Voi: thế giới khối 3D vui nhộn dành cho trẻ em." />
     <title>Block World – Game Cá Voi</title>
-    <script type="module" crossorigin src="/xep-khoi/minecraft/assets/index-Drq5ijJF.js"></script>
-    <link rel="stylesheet" crossorigin href="/xep-khoi/minecraft/assets/index-DHw5ylRu.css">
+    <script type="module" crossorigin src="/xep-khoi/minecraft/assets/index-BmiKaS0S.js"></script>
+    <link rel="stylesheet" crossorigin href="/xep-khoi/minecraft/assets/index-CvXNl8Hh.css">
   </head>
   <body><a href="../" aria-label="Quay lại Game Cá Voi" style="position:fixed;z-index:99999;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));background:#10324ddd;color:#fff;text-decoration:none;padding:10px 13px;border-radius:14px;font:800 13px Arial,sans-serif;box-shadow:0 3px 10px #0005">← Game Cá Voi</a>
     <div id="app">
@@ -34,12 +34,15 @@
           </p>
 
           <div id="mp-panel" class="mp-panel">
-            <div class="mp-title">👥 Chơi cùng nhau</div>
+            <div class="mp-title">👥 Phòng chơi</div>
             <div id="mp-status" class="mp-status">Đang kiểm tra tài khoản…</div>
-            <div id="mp-actions" class="mp-actions">
-              <input id="mp-room-code" maxlength="8" inputmode="text" autocomplete="off" placeholder="Mã phòng, ví dụ CV1234" />
-              <button id="mp-create-room" type="button">Tạo phòng</button>
-              <button id="mp-join-room" type="button">Vào phòng</button>
+            <div id="mp-admin-actions" class="mp-admin-actions" hidden>
+              <button id="mp-create-room" type="button">➕ Tạo phòng mới</button>
+            </div>
+            <div id="mp-room-list-wrap" class="mp-room-list-wrap">
+              <div class="mp-list-title">Danh sách phòng đang có</div>
+              <div id="mp-room-list" class="mp-room-list"><div class="mp-empty">Đang tải danh sách phòng…</div></div>
+              <button id="mp-refresh-rooms" type="button" class="mp-refresh">↻ Làm mới danh sách</button>
             </div>
             <div id="mp-current" class="mp-current" hidden>
               <div>Phòng: <b id="mp-current-code">—</b> · <span id="mp-count">1 người</span></div>
