@@ -62,13 +62,9 @@ frame.addEventListener("load",()=>{
         return out;
       };
     }
-    const originalNew=w.newg;
-    if(typeof originalNew==="function"){
-      w.newg=function(){
-        saved=false; startedAt=Date.now();
-        return originalNew.apply(this,arguments);
-      };
-    }
+    const resetRound=()=>{saved=false;startedAt=Date.now()};
+    d.getElementById("again")?.addEventListener("click",resetRound);
+    d.getElementById("new")?.addEventListener("click",resetRound);
   }catch(e){console.warn(e)}
 });
 </script>
