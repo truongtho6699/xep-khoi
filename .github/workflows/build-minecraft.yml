@@ -8,6 +8,7 @@ on:
       - "tools/customize-block-world.py"
       - "tools/add-block-world-multiplayer.py"
       - "tools/fix-block-world-multiplayer.py"
+      - "tools/admin-room-list.py"
 
 permissions:
   contents: write
@@ -32,6 +33,9 @@ jobs:
 
       - name: Sua loi TypeScript multiplayer
         run: python3 tools/fix-block-world-multiplayer.py /tmp/minecraft-clone
+
+      - name: Admin tao phong user chon danh sach
+        run: python3 tools/admin-room-list.py /tmp/minecraft-clone
 
       - name: Install and build
         working-directory: /tmp/minecraft-clone
@@ -59,7 +63,8 @@ jobs:
           Phiên bản Game Cá Voi đã bổ sung:
           - Việt hóa giao diện.
           - Điều khiển cảm ứng cho trẻ em.
-          - Tạo phòng / vào phòng bằng mã.
+          - Chỉ quản trị viên được tạo phòng.
+          - Người chơi chọn phòng từ danh sách có sẵn.
           - Hiển thị người chơi khác trong thế giới 3D.
           - Đồng bộ vị trí gần thời gian thực.
           - Đồng bộ và lưu các khối cùng xây/phá qua Supabase.
@@ -80,10 +85,10 @@ jobs:
             echo "Phat hien chu giao dien cu trong HTML"
             exit 1
           fi
-          grep -F "Chơi cùng nhau" minecraft/index.html >/dev/null
-          grep -R -F "Đã vào phòng" minecraft/assets >/dev/null
+          grep -F "Danh sách phòng đang có" minecraft/index.html >/dev/null
+          grep -R -F "Chỉ quản trị viên mới được tạo phòng" minecraft/assets >/dev/null
           grep -R -F "block-world:" minecraft/assets >/dev/null
-          echo "Da kiem tra giao dien va multiplayer."
+          echo "Da kiem tra giao dien, danh sach phong va multiplayer."
 
       - name: Commit build
         run: |
@@ -93,6 +98,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "Block World multiplayer giai doan 2 3 4"
+            git commit -m "Block World admin tao phong user chon danh sach"
             git push
           fi
