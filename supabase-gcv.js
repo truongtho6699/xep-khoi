@@ -7,6 +7,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{auth:{pers
 function cleanName(v){return String(v||"").trim().replace(/\s+/g," ").slice(0,24)}
 async function internalEmail(name){const n=cleanName(name).normalize("NFKC").toLocaleLowerCase("vi");const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(n));const h=[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("");return `kid_${h}@game-ca-voi.local`}
 function validPin(pin){return /^\d{4}$/.test(String(pin||""))}
+function authPassword(pin){return `kid-${String(pin)}-gcv`}
+function rememberName(name){try{localStorage.setItem("gcvRememberedName",cleanName(name))}catch(_){}}
+function getRememberedName(){try{return localStorage.getItem("gcvRememberedName")||""}catch(_){return ""}}
 
 async function getUser(){const {data}=await supabase.auth.getUser();return data?.user||null}
 async function getProfile(){const user=await getUser();if(!user)return null;const {data,error}=await supabase.from("profiles").select("user_id,login_name,display_name,avatar_url").eq("user_id",user.id).maybeSingle();if(error)throw error;return data||null}
@@ -16,7 +19,12 @@ async function signUp({name,pin}){
   const res=await fetch(`${SUPABASE_URL}/functions/v1/register-child`,{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({name:loginName,pin:String(pin)})});
   const json=await res.json().catch(()=>({}));if(!res.ok)return {error:new Error(json.error||"Không tạo được tài khoản.")};return signIn({name:loginName,pin});
 }
-async function signIn({name,pin}){const loginName=cleanName(name);if(loginName.length<2)return {error:new Error("Hãy nhập tên người chơi.")};if(!validPin(pin))return {error:new Error("PIN phải gồm đúng 4 số.")};return supabase.auth.signInWithPassword({email:await internalEmail(loginName),password:String(pin)})}
+async function signIn({name,pin}){
+  const loginName=cleanName(name);if(loginName.length<2)return {error:new Error("Hãy nhập tên người chơi.")};if(!validPin(pin))return {error:new Error("PIN phải gồm đúng 4 số.")};
+  const result=await supabase.auth.signInWithPassword({email:await internalEmail(loginName),password:authPassword(pin)});
+  if(!result.error)rememberName(loginName);
+  return result;
+}
 async function signOut(){return supabase.auth.signOut()}
 
 async function saveResult({gameCode,score=0,level=1,durationMs=null,metadata={}}){const user=await getUser();if(!user)return {saved:false,reason:"not_signed_in"};const {data,error}=await supabase.from("game_results").insert({user_id:user.id,game_code:String(gameCode||"ca-voi"),score:Math.max(0,Math.round(Number(score)||0)),level:Math.max(1,Math.round(Number(level)||1)),duration_ms:durationMs==null?null:Math.max(0,Math.round(Number(durationMs)||0)),metadata:metadata&&typeof metadata==="object"?metadata:{}}).select("id").single();return error?{saved:false,reason:"error",error}:{saved:true,id:data?.id}}
@@ -27,4 +35,4 @@ async function getTimSo20Leaderboard(limit=20){const {data,error}=await supabase
 async function getRecentResults(limit=20){const user=await getUser();if(!user)return[];const {data,error}=await supabase.from("game_results").select("id,game_code,score,level,duration_ms,metadata,played_at").eq("user_id",user.id).order("played_at",{ascending:false}).limit(limit);if(error)throw error;return data||[]}
 async function refreshUserBadges(){let label="Khách",signed=false;try{const p=await getProfile();if(p?.display_name){label=p.display_name;signed=true}}catch(_){}document.querySelectorAll("[data-gcv-user]").forEach(el=>el.textContent=label);document.querySelectorAll("[data-gcv-auth-state]").forEach(el=>el.textContent=signed?"Đã đăng nhập":"Chưa đăng nhập")}
 
-const GCV={supabase,getUser,getProfile,signUp,signIn,signOut,saveResult,searchPlayers,getXepKhoiLeaderboard,getTimSo20Leaderboard,getRecentResults,refreshUserBadges};window.GCV=GCV;window.dispatchEvent(new CustomEvent("gcv-ready",{detail:GCV}));if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",refreshUserBadges);else refreshUserBadges();supabase.auth.onAuthStateChange(()=>setTimeout(refreshUserBadges,0));export{GCV};
+const GCV={supabase,getUser,getProfile,signUp,signIn,signOut,getRememberedName,saveResult,searchPlayers,getXepKhoiLeaderboard,getTimSo20Leaderboard,getRecentResults,refreshUserBadges};window.GCV=GCV;window.dispatchEvent(new CustomEvent("gcv-ready",{detail:GCV}));if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",refreshUserBadges);else refreshUserBadges();supabase.auth.onAuthStateChange(()=>setTimeout(refreshUserBadges,0));export{GCV};
