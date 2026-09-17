@@ -1,41 +1,55 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/xep-khoi/minecraft/favicon.svg" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Block World – Game Cá Voi" />
     <meta name="theme-color" content="#87ceeb" />
-    <meta
-      name="description"
-      content="A Minecraft-inspired voxel world in the browser: infinite procedural terrain, break and place blocks, no install."
-    />
-    <title>minecraft-clone</title>
-    <script type="module" crossorigin src="/xep-khoi/minecraft/assets/index-CNuDrRjJ.js"></script>
-    <link rel="stylesheet" crossorigin href="/xep-khoi/minecraft/assets/index-BGxAILgd.css">
+    <meta name="description" content="Block World – Game Cá Voi: thế giới khối 3D vui nhộn dành cho trẻ em." />
+    <title>Block World – Game Cá Voi</title>
+    <script type="module" crossorigin src="/xep-khoi/minecraft/assets/index-Drq5ijJF.js"></script>
+    <link rel="stylesheet" crossorigin href="/xep-khoi/minecraft/assets/index-DHw5ylRu.css">
   </head>
-  <body><a href="../" style="position:fixed;z-index:99999;top:10px;left:10px;background:#111c;color:#fff;text-decoration:none;padding:9px 12px;border-radius:12px;font:700 13px Arial,sans-serif;box-shadow:0 2px 8px #0005">← Game Cá Voi</a>
+  <body><a href="../" aria-label="Quay lại Game Cá Voi" style="position:fixed;z-index:99999;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));background:#10324ddd;color:#fff;text-decoration:none;padding:10px 13px;border-radius:14px;font:800 13px Arial,sans-serif;box-shadow:0 3px 10px #0005">← Game Cá Voi</a>
     <div id="app">
       <div id="crosshair" aria-hidden="true"></div>
       <div id="hotbar"></div>
       <div id="overlay">
         <div id="overlay-content">
-          <h1>minecraft-clone</h1>
+          <h1>🐳 Block World</h1>
+          <h2>Game Cá Voi</h2>
           <p class="controls-desktop">
-            WASD to move &middot; mouse to look &middot; space to jump<br />
-            left click breaks a block &middot; right click places one<br />
-            1-9 or scroll to pick a block
+            <b>Di chuyển:</b> W A S D · <b>Nhìn:</b> chuột · <b>Nhảy:</b> phím cách<br />
+            <b>Phá khối:</b> chuột trái · <b>Đặt khối:</b> chuột phải<br />
+            <b>Chọn khối:</b> phím 1–7 hoặc cuộn chuột
           </p>
           <p class="controls-touch">
-            left thumb to move &middot; drag the right side to look<br />
-            tap to break &middot; the buttons jump and place<br />
-            tap a slot to pick a block
+            👈 <b>Bên trái:</b> kéo để di chuyển<br />
+            👉 <b>Bên phải:</b> vuốt để xoay hướng nhìn<br />
+            Dùng các nút lớn <b>PHÁ · ĐẶT · NHẢY</b><br />
+            Chạm ô vật liệu phía dưới để chọn khối
           </p>
-          <button id="play-button" type="button">Tap to play</button>
+
+          <div id="mp-panel" class="mp-panel">
+            <div class="mp-title">👥 Chơi cùng nhau</div>
+            <div id="mp-status" class="mp-status">Đang kiểm tra tài khoản…</div>
+            <div id="mp-actions" class="mp-actions">
+              <input id="mp-room-code" maxlength="8" inputmode="text" autocomplete="off" placeholder="Mã phòng, ví dụ CV1234" />
+              <button id="mp-create-room" type="button">Tạo phòng</button>
+              <button id="mp-join-room" type="button">Vào phòng</button>
+            </div>
+            <div id="mp-current" class="mp-current" hidden>
+              <div>Phòng: <b id="mp-current-code">—</b> · <span id="mp-count">1 người</span></div>
+              <div id="mp-player-list" class="mp-player-list"></div>
+              <button id="mp-leave-room" type="button" class="mp-leave">Rời phòng</button>
+            </div>
+          </div>
+
+          <button id="play-button" type="button">▶ BẮT ĐẦU CHƠI</button>
+          <p class="kid-note">Chơi vui nhé! 🐳</p>
         </div>
       </div>
     </div>
