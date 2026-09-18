@@ -17,3 +17,4 @@ Phiên bản Game Cá Voi đã bổ sung:
 - Tự nhảy qua bậc 1 khối khi di chuyển.
 - Nút CỨU và tự cứu khi rơi xuống hố sâu.
 - Mobile hiển thị tọa độ X/Y/Z và bố trí nút CỨU riêng khỏi nút NHẢY.
+- Nút ĐI TỚI và lệnh /tp để dịch chuyển nhanh theo tọa độ.
