@@ -12,6 +12,7 @@ on:
       - "tools/easy-fun-movement.py"
       - "tools/mobile-game-layout.py"
       - "tools/teleport-command.py"
+      - "tools/movement-menu.py"
 
 permissions:
   contents: write
@@ -49,6 +50,9 @@ jobs:
       - name: Them lenh dich chuyen theo toa do
         run: python3 tools/teleport-command.py /tmp/minecraft-clone
 
+      - name: Gop Cuu va Di toi vao menu Di chuyen
+        run: python3 tools/movement-menu.py /tmp/minecraft-clone
+
       - name: Install and build
         working-directory: /tmp/minecraft-clone
         run: |
@@ -81,9 +85,9 @@ jobs:
           - Đồng bộ vị trí gần thời gian thực.
           - Đồng bộ và lưu các khối cùng xây/phá qua Supabase.
           - Tự nhảy qua bậc 1 khối khi di chuyển.
-          - Nút CỨU và tự cứu khi rơi xuống hố sâu.
-          - Mobile hiển thị tọa độ X/Y/Z và bố trí nút CỨU riêng khỏi nút NHẢY.
-          - Nút ĐI TỚI và lệnh /tp để dịch chuyển nhanh theo tọa độ.
+          - Tự cứu khi rơi xuống hố sâu.
+          - Mobile hiển thị tọa độ X/Y/Z.
+          - Một nút DI CHUYỂN duy nhất gồm CỨU về nơi bắt đầu và ĐI TỚI theo tọa độ.
           EOF
 
           python3 - <<'PY'
@@ -104,11 +108,11 @@ jobs:
           grep -F "Danh sách phòng đang có" minecraft/index.html >/dev/null
           grep -R -F "Chỉ quản trị viên mới được tạo phòng" minecraft/assets >/dev/null
           grep -R -F "block-world:" minecraft/assets >/dev/null
-          grep -R -F "Đã đưa con về chỗ an toàn" minecraft/assets >/dev/null
           grep -R -F "📍 X " minecraft/assets >/dev/null
-          grep -R -F "Dịch chuyển nhanh" minecraft/assets >/dev/null
+          grep -R -F "🧭 DI CHUYỂN" minecraft/assets >/dev/null
+          grep -R -F "CỨU · VỀ NƠI BẮT ĐẦU" minecraft/assets >/dev/null
           grep -R -F "ĐI TỚI" minecraft/assets >/dev/null
-          echo "Da kiem tra giao dien, phong choi, multiplayer, cuu ho, mobile va dich chuyen toa do."
+          echo "Da kiem tra giao dien, phong choi, multiplayer va menu Di chuyen."
 
       - name: Commit build
         run: |
@@ -118,6 +122,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "Block World them dich chuyen nhanh theo toa do"
+            git commit -m "Block World gop menu Di chuyen"
             git push
           fi
