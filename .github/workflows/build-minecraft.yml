@@ -10,6 +10,7 @@ on:
       - "tools/fix-block-world-multiplayer.py"
       - "tools/admin-room-list.py"
       - "tools/easy-fun-movement.py"
+      - "tools/mobile-game-layout.py"
 
 permissions:
   contents: write
@@ -40,6 +41,9 @@ jobs:
 
       - name: Di chuyen de va cuu ho tre nho
         run: python3 tools/easy-fun-movement.py /tmp/minecraft-clone
+
+      - name: Toi uu bo tri tren mobile
+        run: python3 tools/mobile-game-layout.py /tmp/minecraft-clone
 
       - name: Install and build
         working-directory: /tmp/minecraft-clone
@@ -74,6 +78,7 @@ jobs:
           - Đồng bộ và lưu các khối cùng xây/phá qua Supabase.
           - Tự nhảy qua bậc 1 khối khi di chuyển.
           - Nút CỨU và tự cứu khi rơi xuống hố sâu.
+          - Mobile hiển thị tọa độ X/Y/Z và bố trí nút CỨU riêng khỏi nút NHẢY.
           EOF
 
           python3 - <<'PY'
@@ -95,7 +100,8 @@ jobs:
           grep -R -F "Chỉ quản trị viên mới được tạo phòng" minecraft/assets >/dev/null
           grep -R -F "block-world:" minecraft/assets >/dev/null
           grep -R -F "Đã đưa con về chỗ an toàn" minecraft/assets >/dev/null
-          echo "Da kiem tra giao dien, phong choi, multiplayer va cuu ho."
+          grep -R -F "📍 X " minecraft/assets >/dev/null
+          echo "Da kiem tra giao dien, phong choi, multiplayer, cuu ho va bo tri mobile."
 
       - name: Commit build
         run: |
@@ -105,6 +111,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "Block World di chuyen de va cuu ho tre nho"
+            git commit -m "Block World toi uu giao dien mobile"
             git push
           fi
