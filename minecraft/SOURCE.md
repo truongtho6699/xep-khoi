@@ -16,3 +16,4 @@ Phiên bản Game Cá Voi đã bổ sung:
 - Đồng bộ và lưu các khối cùng xây/phá qua Supabase.
 - Tự nhảy qua bậc 1 khối khi di chuyển.
 - Nút CỨU và tự cứu khi rơi xuống hố sâu.
+- Mobile hiển thị tọa độ X/Y/Z và bố trí nút CỨU riêng khỏi nút NHẢY.
