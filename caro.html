@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<title>Cờ Caro – Game Cá Voi</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:linear-gradient(180deg,#ecfeff,#f8fafc);color:#0f172a}button,input{font:inherit}.app{width:min(96vw,760px);margin:auto;padding:12px 10px 28px}.top{display:flex;align-items:center;gap:10px;margin-bottom:10px}.back{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:#fff;text-decoration:none;color:#0f172a;font-weight:900;box-shadow:0 5px 16px #0001}.title{flex:1}.title h1{margin:0;font-size:25px}.title small{color:#64748b}.panel{background:#fff;border-radius:20px;padding:14px;box-shadow:0 8px 24px #0000000d;margin-bottom:12px}.modes{display:grid;grid-template-columns:1fr 1fr;gap:9px}.mode{border:0;border-radius:15px;padding:12px 8px;font-weight:900;background:#e2e8f0;color:#334155}.mode.active{background:#0f766e;color:#fff}.sub{font-size:12px;color:#64748b;margin:8px 0 0;line-height:1.5}.status{display:flex;align-items:center;justify-content:space-between;gap:10px}.turn{font-weight:900;font-size:16px}.badge{padding:7px 10px;border-radius:999px;background:#f1f5f9;font-size:12px;font-weight:900}.x{color:#dc2626}.o{color:#2563eb}.board-wrap{background:#d9b36c;border-radius:18px;padding:8px;box-shadow:0 10px 28px #0002;overflow:auto;-webkit-overflow-scrolling:touch}.board{--n:15;display:grid;grid-template-columns:repeat(var(--n),30px);grid-template-rows:repeat(var(--n),30px);width:max-content;background:#d9b36c;border:1px solid #8b6b35;touch-action:manipulation}.cell{width:30px;height:30px;border:0;border-right:1px solid #8b6b35;border-bottom:1px solid #8b6b35;background:transparent;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;padding:0;line-height:1}.cell.last{background:#fde68a}.cell.win{background:#86efac}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.btn{border:0;border-radius:14px;padding:11px;font-weight:900;background:#e2e8f0}.btn.primary{background:#0f766e;color:#fff}.online-box{display:none}.online-box.show{display:block}.room-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.room-code{display:flex;gap:8px;margin-top:10px}.room-code input{flex:1;min-width:0;border:1px solid #cbd5e1;border-radius:12px;padding:10px 12px;text-transform:uppercase;font-weight:900;letter-spacing:1px}.rooms{display:grid;gap:8px;margin-top:10px}.room{display:flex;align-items:center;gap:8px;padding:10px;border-radius:13px;background:#f8fafc;border:1px solid #e2e8f0}.room b{flex:1}.room button{border:0;border-radius:10px;padding:8px 10px;background:#0f766e;color:#fff;font-weight:900}.msg{min-height:20px;margin-top:8px;font-size:12px;color:#475569}.legend{display:flex;justify-content:center;gap:18px;font-size:12px;color:#475569;margin-top:9px}.result{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#0008;z-index:50;padding:18px}.result.show{display:flex}.result-card{width:min(92vw,360px);background:#fff;border-radius:22px;padding:22px;text-align:center;box-shadow:0 20px 60px #0005}.result-card h2{margin:0 0 8px;font-size:28px}.result-card p{color:#64748b}.result-card button{width:100%;border:0;border-radius:14px;padding:12px;background:#0f766e;color:#fff;font-weight:900}@media(max-width:520px){.app{padding:10px 8px 24px}.title h1{font-size:22px}.board{grid-template-columns:repeat(var(--n),28px);grid-template-rows:repeat(var(--n),28px)}.cell{width:28px;height:28px;font-size:20px}.panel{padding:12px}.room-actions{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><a class="back" href="./">←</a><div class="title"><h1>⭕ Cờ Caro ❌</h1><small>5 quân liên tiếp là thắng</small></div></div>
+
+  <div class="panel">
+    <div class="modes"><button id="offlineBtn" class="mode active">📱 Chơi Offline</button><button id="onlineBtn" class="mode">🌐 Chơi Online</button></div>
+    <div id="offlineHint" class="sub">Hai người chơi chung trên một điện thoại, máy tính hoặc máy tính bảng. Không cần Internet.</div>
+    <div id="onlineBox" class="online-box">
+      <p class="sub">Chơi với người khác bằng tài khoản Game Cá Voi. Một người tạo phòng, người còn lại chọn phòng hoặc nhập mã.</p>
+      <div class="room-actions"><button id="createRoom" class="btn primary">＋ TẠO PHÒNG</button><button id="refreshRooms" class="btn">↻ LÀM MỚI</button></div>
+      <div class="room-code"><input id="roomCode" maxlength="6" placeholder="NHẬP MÃ PHÒNG"><button id="joinCode" class="btn primary">VÀO</button></div>
+      <div id="onlineMsg" class="msg"></div>
+      <div id="rooms" class="rooms"></div>
+    </div>
+  </div>
+
+  <div class="panel status"><div class="turn" id="turnText">Lượt: <span class="x">X</span></div><div class="badge" id="modeBadge">OFFLINE</div></div>
+
+  <div class="board-wrap"><div id="board" class="board" aria-label="Bàn cờ caro"></div></div>
+  <div class="legend"><span><b class="x">X</b> Người 1</span><span><b class="o">O</b> Người 2</span></div>
+
+  <div class="toolbar"><button id="newGame" class="btn primary">VÁN MỚI</button><button id="undo" class="btn">↶ ĐI LẠI</button></div>
+</div>
+
+<div id="result" class="result"><div class="result-card"><h2 id="resultTitle">🎉 Thắng!</h2><p id="resultText"></p><button id="resultNew">CHƠI VÁN MỚI</button></div></div>
+
+<script>
+(()=>{
+const N=15,WIN=5;
+const boardEl=document.getElementById('board'),turnText=document.getElementById('turnText'),modeBadge=document.getElementById('modeBadge'),result=document.getElementById('result'),resultTitle=document.getElementById('resultTitle'),resultText=document.getElementById('resultText');
+let board=Array.from({length:N},()=>Array(N).fill('')),turn='X',finished=false,moves=[],mode='offline',last=null,winCells=[];
+let GCV=null,sb=null,user=null,room=null,mySymbol=null,channel=null;
+
+function draw(){
+  boardEl.style.setProperty('--n',N); boardEl.innerHTML='';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const b=document.createElement('button');b.className='cell';b.dataset.r=r;b.dataset.c=c;b.textContent=board[r][c];
+    if(board[r][c])b.classList.add(board[r][c].toLowerCase());
+    if(last&&last.r===r&&last.c===c)b.classList.add('last');
+    if(winCells.some(p=>p.r===r&&p.c===c))b.classList.add('win');
+    b.addEventListener('click',()=>play(r,c));boardEl.appendChild(b);
+  }
+  const who=turn==='X'?'<span class="x">X</span>':'<span class="o">O</span>';
+  if(mode==='online'&&room){
+    const mine=mySymbol===turn?' · Đến lượt bạn':' · Chờ đối thủ';
+    turnText.innerHTML=`Lượt: ${who}${mine}`;
+  } else turnText.innerHTML=`Lượt: ${who}`;
+}
+function resetLocal(){board=Array.from({length:N},()=>Array(N).fill(''));turn='X';finished=false;moves=[];last=null;winCells=[];result.classList.remove('show');draw()}
+function line(r,c,dr,dc,s){let arr=[{r,c}],i=1;while(inb(r+dr*i,c+dc*i)&&board[r+dr*i][c+dc*i]===s){arr.push({r:r+dr*i,c:c+dc*i});i++}i=1;while(inb(r-dr*i,c-dc*i)&&board[r-dr*i][c-dc*i]===s){arr.unshift({r:r-dr*i,c:c-dc*i});i++}return arr}
+function inb(r,c){return r>=0&&c>=0&&r<N&&c<N}
+function checkWin(r,c,s){for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){const a=line(r,c,dr,dc,s);if(a.length>=WIN)return a}return null}
+function endGame(winner,cells=[]){finished=true;winCells=cells;draw();resultTitle.textContent=winner==='draw'?'🤝 Hòa!':`🎉 ${winner} thắng!`;resultText.textContent=mode==='online'?(winner===mySymbol?'Bạn đã thắng ván này!':winner==='draw'?'Hai bên hòa nhau.':'Đối thủ đã thắng ván này.'):`Người chơi ${winner==='draw'?'':winner} hoàn thành 5 quân liên tiếp.`;result.classList.add('show')}
+async function play(r,c){
+  if(finished||board[r][c])return;
+  if(mode==='online'){
+    if(!room||!mySymbol)return setMsg('Hãy vào một phòng trước.');
+    if(room.status!=='playing')return setMsg('Đang chờ người chơi thứ hai.');
+    if(room.turn!==mySymbol)return setMsg('Chưa đến lượt bạn.');
+    const {error}=await sb.rpc('play_caro_move',{p_room:room.id,p_row:r,p_col:c});if(error)setMsg(mapErr(error.message));return;
+  }
+  board[r][c]=turn;moves.push({r,c,s:turn});last={r,c};const w=checkWin(r,c,turn);if(w)return endGame(turn,w);if(moves.length===N*N)return endGame('draw');turn=turn==='X'?'O':'X';draw();
+}
+function undo(){if(mode==='online')return setMsg('Chế độ online không hỗ trợ đi lại.');if(finished||!moves.length)return;const m=moves.pop();board[m.r][m.c]='';turn=m.s;last=moves.length?moves[moves.length-1]:null;draw()}
+function setMode(m){mode=m;document.getElementById('offlineBtn').classList.toggle('active',m==='offline');document.getElementById('onlineBtn').classList.toggle('active',m==='online');document.getElementById('onlineBox').classList.toggle('show',m==='online');document.getElementById('offlineHint').style.display=m==='offline'?'block':'none';modeBadge.textContent=m.toUpperCase();if(m==='offline'){leaveRoom();resetLocal()}else initOnline()}
+async function ensureGCV(){if(GCV)return true;try{const mod=await import('./supabase-gcv.js');GCV=mod.GCV||window.GCV;sb=GCV.supabase;user=await GCV.getUser();if(!user){setMsg('Bạn cần đăng nhập tài khoản Game Cá Voi để chơi online.');return false}return true}catch(e){setMsg('Không kết nối được máy chủ. Offline vẫn chơi bình thường.');return false}}
+async function initOnline(){if(!(await ensureGCV()))return;resetLocal();await loadRooms()}
+function setMsg(t){document.getElementById('onlineMsg').textContent=t||''}
+function mapErr(t=''){if(t.includes('NOT_YOUR_TURN'))return 'Chưa đến lượt bạn.';if(t.includes('ROOM_FULL'))return 'Phòng đã đủ 2 người.';if(t.includes('ROOM_NOT_FOUND'))return 'Không tìm thấy phòng.';if(t.includes('CELL_USED'))return 'Ô này đã có quân.';return 'Không thực hiện được. Hãy thử lại.'}
+function code(){const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:5},()=>a[Math.floor(Math.random()*a.length)]).join('')}
+async function createRoom(){if(!(await ensureGCV()))return;leaveRoom();for(let i=0;i<4;i++){const c=code();const {data,error}=await sb.from('caro_rooms').insert({code:c,host_id:user.id,board_size:N,win_length:WIN}).select('*').single();if(!error){await enterRoom(data,'X');document.getElementById('roomCode').value=c;setMsg(`Đã tạo phòng ${c}. Gửi mã này cho người chơi còn lại.`);return}}setMsg('Chưa tạo được phòng, hãy thử lại.')}
+async function joinByCode(c){if(!(await ensureGCV()))return;const v=String(c||'').trim().toUpperCase();if(!v)return setMsg('Hãy nhập mã phòng.');const {data,error}=await sb.rpc('join_caro_room',{p_code:v});if(error)return setMsg(mapErr(error.message));await enterRoom(data,user.id===data.host_id?'X':'O');setMsg(`Đã vào phòng ${data.code}.`)}
+async function enterRoom(r,symbol){leaveRoom();room=r;mySymbol=symbol;modeBadge.textContent=`ONLINE · ${r.code} · Bạn là ${symbol}`;await loadOnlineState();channel=sb.channel(`caro:${r.id}`).on('postgres_changes',{event:'*',schema:'public',table:'caro_moves',filter:`room_id=eq.${r.id}`},()=>loadOnlineState()).on('postgres_changes',{event:'UPDATE',schema:'public',table:'caro_rooms',filter:`id=eq.${r.id}`},payload=>{room=payload.new;loadOnlineState()}).subscribe()}
+function leaveRoom(){if(channel&&sb){sb.removeChannel(channel).catch(()=>{})}channel=null;room=null;mySymbol=null;if(mode==='online')modeBadge.textContent='ONLINE'}
+async function loadOnlineState(){if(!room||!sb)return;const {data:r}=await sb.from('caro_rooms').select('*').eq('id',room.id).single();if(r)room=r;const {data:ms}=await sb.from('caro_moves').select('row_idx,col_idx,symbol,move_no').eq('room_id',room.id).order('move_no');board=Array.from({length:N},()=>Array(N).fill(''));moves=[];for(const m of ms||[]){board[m.row_idx][m.col_idx]=m.symbol;moves.push({r:m.row_idx,c:m.col_idx,s:m.symbol})}last=moves.length?moves[moves.length-1]:null;turn=room.turn;finished=room.status==='finished';winCells=[];if(finished&&room.winner&&room.winner!=='draw'&&last){winCells=checkWin(last.r,last.c,room.winner)||[]}draw();if(finished)endGame(room.winner,winCells);else{result.classList.remove('show');setMsg(room.status==='waiting'?`Phòng ${room.code}: đang chờ người chơi thứ hai...`:`Phòng ${room.code}: đã đủ 2 người.`)}}
+async function newGame(){if(mode==='offline')return resetLocal();if(!room)return resetLocal();const {error}=await sb.rpc('reset_caro_room',{p_room:room.id});if(error)return setMsg('Chưa tạo được ván mới.');result.classList.remove('show');await loadOnlineState()}
+async function loadRooms(){if(!(await ensureGCV()))return;const {data,error}=await sb.from('caro_rooms').select('id,code,host_id,guest_id,status,created_at').eq('status','waiting').is('guest_id',null).order('created_at',{ascending:false}).limit(12);const el=document.getElementById('rooms');el.innerHTML='';if(error)return setMsg('Không tải được danh sách phòng.');if(!data?.length){el.innerHTML='<div class="sub">Chưa có phòng chờ nào.</div>';return}for(const r of data){const d=document.createElement('div');d.className='room';d.innerHTML=`<b>Phòng ${r.code}</b><span>1/2</span><button>VÀO</button>`;d.querySelector('button').onclick=()=>joinByCode(r.code);el.appendChild(d)}}
+
+document.getElementById('offlineBtn').onclick=()=>setMode('offline');document.getElementById('onlineBtn').onclick=()=>setMode('online');document.getElementById('newGame').onclick=newGame;document.getElementById('undo').onclick=undo;document.getElementById('createRoom').onclick=createRoom;document.getElementById('refreshRooms').onclick=loadRooms;document.getElementById('joinCode').onclick=()=>joinByCode(document.getElementById('roomCode').value);document.getElementById('roomCode').addEventListener('keydown',e=>{if(e.key==='Enter')joinByCode(e.target.value)});document.getElementById('resultNew').onclick=newGame;result.addEventListener('click',e=>{if(e.target===result)result.classList.remove('show')});
+resetLocal();
+})();
+</script>
+</body>
+</html>
