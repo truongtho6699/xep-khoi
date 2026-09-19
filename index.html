@@ -7,9 +7,9 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Game Cá Voi</title>
-<link rel="icon" href="./icon-ca-voi.svg?v=17" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=17">
-<link rel="manifest" href="./manifest.json?v=17">
+<link rel="icon" href="./icon-ca-voi.svg?v=18" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-ca-voi.svg?v=18">
+<link rel="manifest" href="./manifest.json?v=18">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Game Cá Voi">
 <meta name="theme-color" content="#4da6ff">
@@ -25,82 +25,29 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f8
 .card{display:block;text-decoration:none;color:inherit;background:white;border-radius:22px;padding:20px;box-shadow:0 10px 30px #00000010;transition:.15s;position:relative;overflow:hidden}
 .card:active{transform:scale(.98)}
 .card::after{content:"";position:absolute;right:-25px;top:-25px;width:90px;height:90px;border-radius:50%;opacity:.14}
-.card.block::after{background:#f59e0b}
-.card.find::after{background:#4f46e5}.card.minecraft::after{background:#22c55e}
+.card.block::after{background:#f59e0b}.card.find::after{background:#4f46e5}.card.minecraft::after{background:#22c55e}.card.caro::after{background:#0f766e}
 .ico{width:76px;height:76px;border-radius:22px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden}
-.gold{background:linear-gradient(145deg,#fff7d1,#ffe08a)}
-.num{background:linear-gradient(145deg,#e8ecff,#cfd7ff)}.mine{background:linear-gradient(145deg,#dcfce7,#bbf7d0);font-size:44px}
+.gold{background:linear-gradient(145deg,#fff7d1,#ffe08a)}.num{background:linear-gradient(145deg,#e8ecff,#cfd7ff)}.mine{background:linear-gradient(145deg,#dcfce7,#bbf7d0);font-size:44px}.caroico{background:linear-gradient(145deg,#ccfbf1,#99f6e4);font-size:38px;font-weight:900;color:#0f766e}
 .ico img{width:58px;height:58px;display:block}
-.card h2{margin:0 0 6px;font-size:21px}
-.card p{margin:0;color:#6b7280;font-size:13px;line-height:1.5}
-.tag{display:inline-block;margin-top:14px;background:#f3f4f6;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;color:#4b5563}
+.card h2{margin:0 0 6px;font-size:21px}.card p{margin:0;color:#6b7280;font-size:13px;line-height:1.5}.tag{display:inline-block;margin-top:14px;background:#f3f4f6;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;color:#4b5563}
 @media(max-width:520px){.games{grid-template-columns:1fr}.wrap{padding-top:16px}.hero h1{font-size:30px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="hero">
-    <h1><img src="./icon-ca-voi.svg?v=17" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1>
-    <p>Chọn trò chơi yêu thích và bắt đầu ngay</p>
-  </div>
-
-  <a class="accountbar" href="./tai-khoan.html?v=17">
-    <div class="accountico">👤</div>
-    <div class="accounttext">
-      <b data-gcv-user>Khách</b>
-      <span><span data-gcv-auth-state>Chưa đăng nhập</span> · Tài khoản & bảng xếp hạng</span>
-    </div>
-    <div class="arrow">›</div>
-  </a>
-
+  <div class="hero"><h1><img src="./icon-ca-voi.svg?v=18" alt="Cá Voi" style="width:54px;height:54px;vertical-align:middle;margin-right:8px">Game Cá Voi</h1><p>Chọn trò chơi yêu thích và bắt đầu ngay</p></div>
+  <a class="accountbar" href="./tai-khoan.html?v=18"><div class="accountico">👤</div><div class="accounttext"><b data-gcv-user>Khách</b><span><span data-gcv-auth-state>Chưa đăng nhập</span> · Tài khoản & bảng xếp hạng</span></div><div class="arrow">›</div></a>
   <div class="games">
-    <a class="card block" href="./xep-khoi.html?v=17">
-      <div class="ico gold">
-        <img src="./icon-xep-khoi.svg?v=17" alt="Icon Xếp Khối">
-      </div>
-      <h2>Xếp Khối</h2>
-      <p>Xếp các khối vào bàn, hoàn thành hàng hoặc cột để ghi điểm.</p>
-      <span class="tag">Kéo & thả</span>
-    </a>
-
-    <a class="card find" href="./noi-so.html?v=17">
-      <div class="ico num">
-        <img src="./icon-tim-so.svg?v=17" alt="Icon Tìm Số">
-      </div>
-      <h2>Tìm Số</h2>
-      <p>Tìm và bấm các số theo đúng thứ tự từ 1 đến N trong thời gian ngắn nhất.</p>
-      <span class="tag">1–10 đến 1–100</span>
-    </a>
-
-    <a class="card minecraft" href="./minecraft/">
-      <div class="ico mine">⛏️</div>
-      <h2>Block World 3D</h2>
-      <p>Khám phá thế giới khối 3D, di chuyển, phá và đặt khối ngay trên điện thoại hoặc máy tính.</p>
-      <span class="tag">3D · Sinh tồn tự do</span>
-    </a>
+    <a class="card block" href="./xep-khoi.html?v=18"><div class="ico gold"><img src="./icon-xep-khoi.svg?v=18" alt="Icon Xếp Khối"></div><h2>Xếp Khối</h2><p>Xếp các khối vào bàn, hoàn thành hàng hoặc cột để ghi điểm.</p><span class="tag">Kéo & thả</span></a>
+    <a class="card find" href="./noi-so.html?v=18"><div class="ico num"><img src="./icon-tim-so.svg?v=18" alt="Icon Tìm Số"></div><h2>Tìm Số</h2><p>Tìm và bấm các số theo đúng thứ tự từ 1 đến N trong thời gian ngắn nhất.</p><span class="tag">1–10 đến 1–100</span></a>
+    <a class="card caro" href="./caro.html?v=18"><div class="ico caroico">⭕❌</div><h2>Cờ Caro</h2><p>Đánh 5 quân liên tiếp để chiến thắng. Chơi 2 người trên cùng máy hoặc đấu online.</p><span class="tag">Offline · Online</span></a>
+    <a class="card minecraft" href="./minecraft/"><div class="ico mine">⛏️</div><h2>Block World 3D</h2><p>Khám phá thế giới khối 3D, di chuyển, phá và đặt khối ngay trên điện thoại hoặc máy tính.</p><span class="tag">3D · Sinh tồn tự do</span></a>
   </div>
 </div>
-
-<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 17</div>
-
-<script type="module" src="./supabase-gcv.js?v=17"></script>
+<div style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px">Phiên bản 18</div>
+<script type="module" src="./supabase-gcv.js?v=18"></script>
 <script>
-(function(){
-  if("serviceWorker" in navigator){
-    window.addEventListener("load",async()=>{
-      try{
-        const reg=await navigator.serviceWorker.register("./service-worker.js?v=17",{updateViaCache:"none"});
-        reg.update().catch(()=>{});
-      }catch(e){}
-    });
-
-    document.addEventListener("visibilitychange",()=>{
-      if(document.visibilityState==="visible"){
-        navigator.serviceWorker.getRegistration().then(reg=>reg?.update()).catch(()=>{});
-      }
-    });
-  }
-})();
+(function(){if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./service-worker.js?v=18",{updateViaCache:"none"});reg.update().catch(()=>{});}catch(e){}});document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){navigator.serviceWorker.getRegistration().then(reg=>reg?.update()).catch(()=>{});}});}})();
 </script>
 </body>
 </html>
