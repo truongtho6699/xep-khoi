@@ -1,8 +1,9 @@
-const CACHE_VERSION="game-ca-voi-v20";
+const CACHE_VERSION="game-ca-voi-v21";
 const GAME_PAGES=new Set(["/xep-khoi/xep-khoi.html","/xep-khoi/noi-so.html"]);
+const CORE_ASSETS=["./","./index.html","./caro.html"];
 const INJECT=`\n<script type="module" src="./supabase-gcv.js?v=20"></script>\n<script src="./game-sync.js?v=20"></script>\n`;
 
-self.addEventListener("install",event=>{self.skipWaiting();});
+self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_VERSION).then(c=>c.addAll(CORE_ASSETS)).catch(()=>{}).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 
 async function injectGameScripts(response,url){
