@@ -1,4 +1,4 @@
-const CACHE_VERSION="game-ca-voi-v22";
+const CACHE_VERSION="game-ca-voi-v23";
 const GAME_PAGES=new Set(["/xep-khoi/xep-khoi.html","/xep-khoi/noi-so.html"]);
 const CORE_ASSETS=["./","./index.html","./caro.html","./lat-the.html","./ghep-hinh.html","./me-cung.html","./dem-nhanh.html","./tim-khac-nhau.html"];
 const INJECT=`\n<script type="module" src="./supabase-gcv.js?v=20"></script>\n<script src="./game-sync.js?v=20"></script>\n`;
