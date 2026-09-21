@@ -1,0 +1,52 @@
+/* Game Cá Voi - lớp tương thích màn hình nhỏ / mobile */
+*{box-sizing:border-box}
+html,body{width:100%;max-width:100%;min-height:100%;min-height:100dvh;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{overscroll-behavior-y:contain}
+.wrap,.app{width:min(calc(100% - 16px),760px)!important;max-width:100%!important;margin-left:auto!important;margin-right:auto!important;padding-left:0!important;padding-right:0!important;padding-bottom:max(18px,env(safe-area-inset-bottom))!important}
+.top{min-width:0}.title{min-width:0}.title h1{overflow-wrap:anywhere}
+.panel,.board-wrap,.pics,.picbox,.grid,.board,.maze,.question,.answers{max-width:100%}
+button,input{max-width:100%;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+img,canvas,svg{max-width:100%;height:auto}
+
+/* Tránh hiệu ứng nặng trên máy yếu */
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+@media (max-width:430px){
+  .wrap,.app{width:calc(100% - 12px)!important;padding-top:8px!important}
+  .top{gap:7px!important}.back{width:40px!important;height:40px!important;flex:0 0 40px!important}
+  .title h1{font-size:20px!important}.title p,.title small{font-size:11px!important}
+  .panel{padding:9px!important;border-radius:16px!important;margin-top:8px!important;margin-bottom:8px!important}
+  .row,.modes{gap:6px!important}.chip,.mode{padding:9px 5px!important;font-size:12px!important;min-width:0!important}
+  .stats{margin:7px 0!important;gap:5px!important}.stat{padding:6px 3px!important;font-size:11px!important}
+  .msg{min-height:22px!important;margin:6px 0!important;font-size:12px!important}
+  .new,.btn{min-height:44px!important}
+  .actions{gap:6px!important}
+  .actions button{min-height:44px!important}
+  .board-wrap{padding:5px!important;border-radius:13px!important;max-width:100vw!important}
+}
+
+/* Màn hình thấp hoặc xoay ngang: ưu tiên phần chơi, thu gọn tiêu đề */
+@media (max-height:700px){
+  .wrap,.app{padding-top:6px!important;padding-bottom:10px!important}
+  .top{margin-bottom:5px!important}.title p,.title small{display:none!important}
+  .panel{margin-top:6px!important;margin-bottom:6px!important}
+  .question{min-height:120px!important;padding:4px 0!important}
+  .items{font-size:clamp(28px,8vw,50px)!important}.math{font-size:clamp(38px,11vw,64px)!important}
+  .answers button{min-height:52px!important}
+  .samplebar{margin:6px 0!important}.sample{padding:5px!important}.hint,.tip{margin:4px 0!important;font-size:11px!important}
+  .msg{min-height:20px!important}
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .maze{width:min(54vh,54vw)!important;max-width:54vh!important;margin:4px auto!important}
+  .controls{position:fixed!important;right:max(8px,env(safe-area-inset-right))!important;bottom:max(8px,env(safe-area-inset-bottom))!important;width:min(190px,32vw)!important;margin:0!important;z-index:10!important}
+  .controls button{font-size:22px!important;border-radius:12px!important}
+  .tip{display:none!important}
+  .pics{gap:6px!important}.picbox{padding:4px!important}.piclabel{margin-bottom:3px!important}
+}
+
+/* Tìm khác nhau: giữ 2 hình theo chiều dọc nhưng không tràn ngang */
+.pics{width:100%!important}.picbox{width:100%!important;min-width:0!important}.pic{width:100%!important;min-width:0!important}.cell{min-width:0!important}
+
+/* Caro: bàn cờ luôn cuộn trong khung, không kéo cả trang lệch ngang */
+.board-wrap{width:100%!important;max-width:100%!important;overflow:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch}
