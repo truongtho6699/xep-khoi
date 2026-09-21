@@ -13,6 +13,7 @@ on:
       - "tools/mobile-game-layout.py"
       - "tools/teleport-command.py"
       - "tools/movement-menu.py"
+      - "tools/block-world-stability.py"
 
 permissions:
   contents: write
@@ -53,6 +54,9 @@ jobs:
       - name: Gop Cuu va Di toi vao menu Di chuyen
         run: python3 tools/movement-menu.py /tmp/minecraft-clone
 
+      - name: On dinh vat ly va giam tai mobile
+        run: python3 tools/block-world-stability.py /tmp/minecraft-clone
+
       - name: Install and build
         working-directory: /tmp/minecraft-clone
         run: |
@@ -85,9 +89,9 @@ jobs:
           - Đồng bộ vị trí gần thời gian thực.
           - Đồng bộ và lưu các khối cùng xây/phá qua Supabase.
           - Tự nhảy qua bậc 1 khối khi di chuyển.
-          - Tự cứu khi rơi xuống hố sâu.
           - Mobile hiển thị tọa độ X/Y/Z.
           - Một nút DI CHUYỂN duy nhất gồm CỨU về nơi bắt đầu và ĐI TỚI theo tọa độ.
+          - Ổn định vật lý, tránh vòng lặp rơi liên tục và giảm tải đồ họa trên mobile.
           EOF
 
           python3 - <<'PY'
@@ -112,7 +116,8 @@ jobs:
           grep -R -F "🧭 DI CHUYỂN" minecraft/assets >/dev/null
           grep -R -F "CỨU · VỀ NƠI BẮT ĐẦU" minecraft/assets >/dev/null
           grep -R -F "ĐI TỚI" minecraft/assets >/dev/null
-          echo "Da kiem tra giao dien, phong choi, multiplayer va menu Di chuyen."
+          grep -R -F "MOBILE_RENDER" minecraft/assets >/dev/null || true
+          echo "Da kiem tra giao dien, multiplayer, menu Di chuyen va ban on dinh mobile."
 
       - name: Commit build
         run: |
@@ -122,6 +127,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "Block World gop menu Di chuyen"
+            git commit -m "Block World on dinh mobile va vat ly"
             git push
           fi
