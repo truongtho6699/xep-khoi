@@ -15,6 +15,6 @@ Phiên bản Game Cá Voi đã bổ sung:
 - Đồng bộ vị trí gần thời gian thực.
 - Đồng bộ và lưu các khối cùng xây/phá qua Supabase.
 - Tự nhảy qua bậc 1 khối khi di chuyển.
-- Tự cứu khi rơi xuống hố sâu.
 - Mobile hiển thị tọa độ X/Y/Z.
 - Một nút DI CHUYỂN duy nhất gồm CỨU về nơi bắt đầu và ĐI TỚI theo tọa độ.
+- Ổn định vật lý, tránh vòng lặp rơi liên tục và giảm tải đồ họa trên mobile.
