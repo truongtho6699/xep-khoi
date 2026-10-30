@@ -14,7 +14,7 @@ if 'const safeDt = Math.min(dt, 0.04);' not in s:
     s = s.replace('      this.safeCheckTimer += dt;', '      this.safeCheckTimer += safeDt;')
 
 old_auto = '''      // Rơi xuống hố sâu thì tự đưa về điểm an toàn gần nhất.\n      if (this.state.position.y < this.safePosition.y - 9 || this.state.position.y < 2) {\n        this.rescue();\n      }\n'''
-new_auto = '''      // Chỉ tự đưa về nhà khi thật sự rơi ra khỏi thế giới.\n      // Không tự cứu theo chênh lệch độ cao để tránh vòng lặp rơi-cứu-rơi trên máy chậm.\n      if (this.state.position.y < -12 && performance.now() - this.lastRescueAt > 2500) {\n        this.goHome();\n        this.lastRescueAt = performance.now();\n      }\n'''
+new_auto = '''      // Chống rơi sâu cho trẻ nhỏ: nếu đang rơi nhanh và thấp hơn điểm an toàn hơn 6 khối,\n      // đưa về điểm an toàn đã được xác thực. Có thời gian chờ để không tạo vòng lặp cứu liên tục.\n      const deepFall = this.safePosition.y - this.state.position.y > 6;\n      if (deepFall && this.state.velocity.y < -7 && performance.now() - this.lastRescueAt > 3000) {\n        this.rescue();\n      }\n      // Lớp cuối: nếu thật sự rơi ra khỏi thế giới thì về điểm bắt đầu.\n      if (this.state.position.y < -12 && performance.now() - this.lastRescueAt > 2500) {\n        this.goHome();\n        this.lastRescueAt = performance.now();\n      }\n'''
 if old_auto in s:
     s = s.replace(old_auto, new_auto)
 
@@ -23,6 +23,52 @@ old_home = '''  goHome(): void {\n    this.state = {\n      position: { ...this.
 new_home = '''  goHome(): void {\n    const hx = this.homePosition.x;\n    const hz = this.homePosition.z;\n    const hy = findGroundHeight(\n      Math.floor(hx),\n      Math.floor(hz),\n      CHUNK_HEIGHT - 1,\n      (x, y, z) => isSolid(this.world.getBlock(x, y, z)),\n    );\n    const home = { x: hx, y: Math.max(2, hy), z: hz };\n    this.homePosition = { ...home };\n    this.safePosition = { ...home };\n    this.state = {\n      position: { ...home },\n      velocity: { x: 0, y: 0, z: 0 },\n      onGround: false,\n    };\n    this.syncCamera();\n    window.dispatchEvent(new CustomEvent('blockworld-home'));\n  }\n'''
 if old_home in s:
     s = s.replace(old_home, new_home)
+
+# rescue() chỉ dùng điểm an toàn khi mặt đất vẫn tồn tại và đủ khoảng trống cho nhân vật.
+old_rescue = '''  rescue(): void {
+    const now = performance.now();
+    if (now - this.lastRescueAt < 700) return;
+    this.lastRescueAt = now;
+    this.state = {
+      position: { ...this.safePosition },
+      velocity: { x: 0, y: 0, z: 0 },
+      onGround: false,
+    };
+    this.syncCamera();
+    window.dispatchEvent(new CustomEvent('blockworld-rescued'));
+  }
+'''
+new_rescue = '''  rescue(): void {
+    const now = performance.now();
+    if (now - this.lastRescueAt < 1200) return;
+    this.lastRescueAt = now;
+
+    const sx = Math.floor(this.safePosition.x);
+    const sy = Math.floor(this.safePosition.y);
+    const sz = Math.floor(this.safePosition.z);
+    const solid = (x: number, y: number, z: number) => isSolid(this.world.getBlock(x, y, z));
+    const safeStillValid =
+      solid(sx, sy - 1, sz) &&
+      !solid(sx, sy, sz) &&
+      !solid(sx, sy + 1, sz);
+
+    if (!safeStillValid) {
+      this.goHome();
+      return;
+    }
+
+    this.state = {
+      position: { ...this.safePosition },
+      velocity: { x: 0, y: 0, z: 0 },
+      onGround: true,
+    };
+    this.syncCamera();
+    window.dispatchEvent(new CustomEvent('blockworld-rescued'));
+  }
+'''
+if old_rescue in s:
+    s = s.replace(old_rescue, new_rescue)
+
 write('src/player/controller.ts', s)
 
 # 2) Giảm tải thế giới trên điện thoại / máy yếu.
