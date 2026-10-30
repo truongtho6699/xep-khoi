@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#f59e0b">
+<title>Cờ Tướng vui · Game Cá Voi</title>
+<style>
+*{box-sizing:border-box}
+:root{--red:#dc2626;--black:#334155;--gold:#f59e0b;--wood:#f6d58a;--wood2:#e8b965;--ink:#54351f}
+html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:linear-gradient(180deg,#fff7ed,#fefce8 58%,#ecfeff);color:#1f2937}
+button{font:inherit}
+.app{width:min(96vw,860px);margin:auto;padding:max(10px,env(safe-area-inset-top)) 8px 28px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.back{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:14px;background:#fff;text-decoration:none;color:#111827;font-size:23px;font-weight:900;box-shadow:0 5px 16px #0001}
+.title{flex:1;min-width:0}.title h1{margin:0;font-size:24px;white-space:nowrap}.title p{margin:3px 0 0;color:#64748b;font-size:12px}
+.card{background:#ffffffde;border:1px solid #fff;border-radius:20px;padding:12px;box-shadow:0 8px 26px #92400e12;margin-bottom:10px}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mode{border:0;border-radius:14px;min-height:46px;padding:9px 7px;background:#fef3c7;color:#92400e;font-weight:900}
+.mode.on{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;box-shadow:0 5px 14px #f59e0b45}
+.status{display:flex;align-items:center;gap:8px;margin-top:9px}.turn{flex:1;font-weight:900}.badge{font-size:11px;font-weight:900;background:#f1f5f9;border-radius:99px;padding:7px 10px}
+.board-shell{position:relative;width:min(94vw,560px);margin:0 auto 10px;padding:10px;background:linear-gradient(145deg,#f4c76c,#d99b42);border-radius:20px;box-shadow:0 12px 30px #78350f35;border:3px solid #b7792d}
+.board{position:relative;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(10,1fr);aspect-ratio:9/10;background:
+linear-gradient(to right,transparent calc(50% - 1px),#7c4a22 calc(50% - 1px),#7c4a22 calc(50% + 1px),transparent calc(50% + 1px)),
+linear-gradient(to bottom,transparent calc(50% - 1px),#7c4a22 calc(50% - 1px),#7c4a22 calc(50% + 1px),transparent calc(50% + 1px)),
+repeating-linear-gradient(to right,transparent 0,transparent calc(12.5% - 1px),#7c4a22 calc(12.5% - 1px),#7c4a22 calc(12.5% + 1px)),
+repeating-linear-gradient(to bottom,transparent 0,transparent calc(11.111% - 1px),#7c4a22 calc(11.111% - 1px),#7c4a22 calc(11.111% + 1px));
+background-color:var(--wood)}
+.river{position:absolute;left:5%;right:5%;top:50%;transform:translateY(-50%);height:8.2%;background:linear-gradient(90deg,#c7f9ff,#ecfeff,#c7f9ff);border-top:2px solid #7c4a22;border-bottom:2px solid #7c4a22;display:flex;align-items:center;justify-content:space-around;color:#0e7490;font:900 clamp(13px,4vw,24px) Georgia,serif;letter-spacing:.12em;pointer-events:none;z-index:1}
+.square{position:relative;z-index:2;border:0;background:transparent;display:flex;align-items:center;justify-content:center;padding:1px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.square.hint:before{content:"";position:absolute;width:22%;aspect-ratio:1;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px #fff9;z-index:0}
+.square.capture:before{content:"";position:absolute;width:72%;aspect-ratio:1;border-radius:50%;border:4px solid #ef4444;background:#fee2e233;z-index:0}
+.square.last{background:#fde68a77}
+.piece{width:84%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 38% 30%,#fffaf0,#f5d493 70%);border:3px solid currentColor;box-shadow:0 3px 7px #0004,inset 0 0 0 2px #fff9;font:900 clamp(18px,5.5vw,34px) "Arial","Noto Sans SC",sans-serif;line-height:1;transition:.12s;user-select:none;position:relative;z-index:3}
+.piece.red{color:var(--red)}.piece.black{color:var(--black)}
+.square.selected .piece{transform:scale(1.12) translateY(-2px);box-shadow:0 7px 14px #0005,0 0 0 4px #fde68a}
+.square.ai .piece{animation:pop .45s ease}
+@keyframes pop{50%{transform:scale(1.18)}}
+.guide{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:center}
+.guide-ico{width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#ffedd5,#fde68a);font-size:31px}
+.guide b{display:block;font-size:15px;margin-bottom:3px}.guide p{margin:0;color:#64748b;font-size:12px;line-height:1.45}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.action{border:0;border-radius:14px;min-height:44px;padding:8px;font-weight:900;background:#e2e8f0;color:#334155}
+.action.primary{background:#16a34a;color:#fff}.action.hintbtn{background:#2563eb;color:#fff}
+.msg{text-align:center;font-weight:900;min-height:24px;margin:8px 0 0;color:#92400e}
+.legend{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:11px;color:#64748b;margin:5px 0 2px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#22c55e}.ring{display:inline-block;width:12px;height:12px;border-radius:50%;border:3px solid #ef4444}
+.result{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:50;padding:18px}.result.show{display:flex}.result-card{width:min(92vw,360px);background:#fff;border-radius:24px;padding:22px;text-align:center;box-shadow:0 18px 60px #0006}.result-card h2{font-size:30px;margin:0 0 7px}.result-card p{color:#64748b}.result-card button{width:100%;border:0;border-radius:14px;padding:13px;background:#f97316;color:#fff;font-weight:900}
+@media(max-width:520px){.app{width:100%;padding-left:6px;padding-right:6px}.title h1{font-size:20px}.title p{font-size:11px}.card{border-radius:16px;padding:9px}.board-shell{width:min(97vw,510px);padding:7px;border-radius:16px}.piece{border-width:2px}.actions{gap:6px}.action{font-size:12px}.guide{grid-template-columns:48px 1fr}.guide-ico{width:48px;height:48px;border-radius:15px;font-size:26px}}
+@media(max-height:700px) and (orientation:landscape){.app{width:min(98vw,1050px)}.top{margin-bottom:5px}.title p{display:none}.layout{display:grid;grid-template-columns:min(58vh,490px) 1fr;gap:10px;align-items:start}.board-shell{width:min(58vh,490px);margin:0}.side{min-width:300px}.card{margin-bottom:7px}.guide p{font-size:11px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><a class="back" href="./" aria-label="Quay lại">←</a><div class="title"><h1>🏯 Cờ Tướng vui</h1><p>Học cách đi từng quân · Chơi cùng máy hoặc 2 người</p></div></div>
+  <div class="layout">
+    <div class="board-shell"><div id="board" class="board"><div class="river"><span>楚 河</span><span>漢 界</span></div></div></div>
+    <div class="side">
+      <div class="card">
+        <div class="mode-row"><button id="aiMode" class="mode on">🤖 Chơi với máy</button><button id="twoMode" class="mode">👫 Hai người</button></div>
+        <div class="status"><div id="turn" class="turn">Lượt: 🔴 Đỏ</div><div id="modeBadge" class="badge">BÉ ĐỎ · MÁY ĐEN</div></div>
+        <div id="msg" class="msg">Chạm một quân Đỏ để xem các nước có thể đi.</div>
+      </div>
+      <div class="card guide"><div id="guideIco" class="guide-ico">🎓</div><div><b id="guideTitle">Cô giáo Cá Voi</b><p id="guideText">Chọn một quân cờ. Cô giáo sẽ chỉ cách quân đó di chuyển và đánh dấu các ô con có thể đi.</p></div></div>
+      <div class="card"><div class="actions"><button id="hintBtn" class="action hintbtn">💡 Gợi ý</button><button id="undoBtn" class="action">↶ Đi lại</button><button id="newBtn" class="action primary">🔄 Ván mới</button></div><div class="legend"><span><i class="dot"></i> Ô có thể đi</span><span><i class="ring"></i> Có thể ăn quân</span></div></div>
+    </div>
+  </div>
+</div>
+<div id="result" class="result"><div class="result-card"><h2 id="resultTitle">🎉 Thắng rồi!</h2><p id="resultText"></p><button id="againBtn">CHƠI VÁN MỚI</button></div></div>
+<script>
+(function(){
+const R='r',B='b';
+const names={G:'Tướng',A:'Sĩ',E:'Tượng',H:'Mã',R:'Xe',C:'Pháo',S:'Tốt'};
+const chars={r:{G:'帥',A:'仕',E:'相',H:'傌',R:'俥',C:'炮',S:'兵'},b:{G:'將',A:'士',E:'象',H:'馬',R:'車',C:'砲',S:'卒'}};
+const tips={
+G:['👑','Tướng','Tướng đi từng ô ngang hoặc dọc trong cung. Hai Tướng không được nhìn thẳng nhau.'],
+A:['🛡️','Sĩ','Sĩ bảo vệ Tướng, chỉ đi chéo 1 ô và luôn ở trong cung.'],
+E:['🐘','Tượng','Tượng đi chéo đúng 2 ô. Nếu ô giữa bị chặn thì Tượng không đi được và Tượng không qua sông.'],
+H:['🐴','Mã','Mã đi hình chữ L: một ô thẳng rồi một ô chéo. Nếu chân Mã bị chặn thì không nhảy qua được.'],
+R:['🚗','Xe','Xe đi thẳng ngang hoặc dọc bao nhiêu ô cũng được, miễn là đường không bị chặn.'],
+C:['🎯','Pháo','Pháo đi thẳng như Xe. Muốn ăn quân, Pháo phải nhảy qua đúng 1 quân làm “ngòi”.'],
+S:['🪖','Tốt','Tốt tiến 1 ô về phía trước. Qua sông rồi, Tốt có thể đi thêm sang trái hoặc phải, nhưng không được lùi.']
+};
+const values={G:10000,R:90,C:45,H:42,E:22,A:22,S:12};
+let board=[],turn=R,selected=null,legal=[],mode='ai',history=[],finished=false,last=null,aiBusy=false,hintMove=null;
+
+function P(t,c){return {t:t,c:c}}
+function initial(){
+ const a=Array.from({length:10},()=>Array(9).fill(null));
+ const back=['R','H','E','A','G','A','E','H','R'];
+ for(let c=0;c<9;c++){a[0][c]=P(back[c],B);a[9][c]=P(back[c],R)}
+ a[2][1]=P('C',B);a[2][7]=P('C',B);a[7][1]=P('C',R);a[7][7]=P('C',R);
+ for(const c of [0,2,4,6,8]){a[3][c]=P('S',B);a[6][c]=P('S',R)}
+ return a;
+}
+function clone(b){return b.map(row=>row.map(p=>p?{t:p.t,c:p.c}:null))}
+function inside(r,c){return r>=0&&r<10&&c>=0&&c<9}
+function palace(color,r,c){return c>=3&&c<=5&&(color===R?r>=7&&r<=9:r>=0&&r<=2)}
+function crossed(color,r){return color===R?r<=4:r>=5}
+function pushIf(arr,b,r,c,color,captureOnly){
+ if(!inside(r,c))return false;
+ const p=b[r][c];
+ if(!p){if(!captureOnly)arr.push({r:r,c:c});return true}
+ if(p.c!==color)arr.push({r:r,c:c,capture:true});
+ return false;
+}
+function pseudoMoves(b,r,c,attacks){
+ const p=b[r][c]; if(!p)return []; const out=[],color=p.c,t=p.t;
+ if(t==='G'){
+   for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+d[0],nc=c+d[1];if(palace(color,nr,nc))pushIf(out,b,nr,nc,color,false)}
+   for(const dr of [-1,1]){let nr=r+dr;while(inside(nr,c)&&!b[nr][c])nr+=dr;if(inside(nr,c)&&b[nr][c]&&b[nr][c].t==='G'&&b[nr][c].c!==color)out.push({r:nr,c:c,capture:true})}
+ }
+ if(t==='A'){
+   for(const d of [[1,1],[1,-1],[-1,1],[-1,-1]]){const nr=r+d[0],nc=c+d[1];if(palace(color,nr,nc))pushIf(out,b,nr,nc,color,false)}
+ }
+ if(t==='E'){
+   for(const d of [[2,2],[2,-2],[-2,2],[-2,-2]]){const nr=r+d[0],nc=c+d[1],er=r+d[0]/2,ec=c+d[1]/2;if(!inside(nr,nc)||b[er][ec])continue;if(color===R&&nr<5)continue;if(color===B&&nr>4)continue;pushIf(out,b,nr,nc,color,false)}
+ }
+ if(t==='H'){
+   const moves=[[2,1,1,0],[2,-1,1,0],[-2,1,-1,0],[-2,-1,-1,0],[1,2,0,1],[-1,2,0,1],[1,-2,0,-1],[-1,-2,0,-1]];
+   for(const m of moves){if(!inside(r+m[2],c+m[3])||b[r+m[2]][c+m[3]])continue;pushIf(out,b,r+m[0],c+m[1],color,false)}
+ }
+ if(t==='R'||t==='C'){
+   for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){
+     let nr=r+d[0],nc=c+d[1],screen=false;
+     while(inside(nr,nc)){
+       const q=b[nr][nc];
+       if(t==='R'){
+         if(!q)out.push({r:nr,c:nc});else{if(q.c!==color)out.push({r:nr,c:nc,capture:true});break}
+       }else{
+         if(!screen){if(!q)out.push({r:nr,c:nc});else screen=true}
+         else if(q){if(q.c!==color)out.push({r:nr,c:nc,capture:true});break}
+       }
+       nr+=d[0];nc+=d[1];
+     }
+   }
+ }
+ if(t==='S'){
+   const f=color===R?-1:1;pushIf(out,b,r+f,c,color,false);
+   if(crossed(color,r)){pushIf(out,b,r,c-1,color,false);pushIf(out,b,r,c+1,color,false)}
+ }
+ return out;
+}
+function findGeneral(b,color){for(let r=0;r<10;r++)for(let c=0;c<9;c++){const p=b[r][c];if(p&&p.c===color&&p.t==='G')return {r:r,c:c}}return null}
+function isInCheck(b,color){
+ const g=findGeneral(b,color);if(!g)return true;const opp=color===R?B:R;
+ for(let r=0;r<10;r++)for(let c=0;c<9;c++){const p=b[r][c];if(p&&p.c===opp){const ms=pseudoMoves(b,r,c,true);if(ms.some(m=>m.r===g.r&&m.c===g.c))return true}}
+ return false;
+}
+function legalMoves(b,r,c){
+ const p=b[r][c];if(!p)return [];
+ return pseudoMoves(b,r,c,false).filter(m=>{const nb=clone(b);nb[m.r][m.c]=nb[r][c];nb[r][c]=null;return !isInCheck(nb,p.c)});
+}
+function allMoves(color,b){
+ const out=[];for(let r=0;r<10;r++)for(let c=0;c<9;c++){const p=b[r][c];if(p&&p.c===color)for(const m of legalMoves(b,r,c))out.push({fr:r,fc:c,tr:m.r,tc:m.c})}return out;
+}
+function coord(r,c){return String.fromCharCode(65+c)+(10-r)}
+function setGuide(piece){
+ const t=piece?tips[piece.t]:['🎓','Cô giáo Cá Voi','Chọn một quân cờ. Cô giáo sẽ chỉ cách quân đó di chuyển và đánh dấu các ô con có thể đi.'];
+ document.getElementById('guideIco').textContent=t[0];document.getElementById('guideTitle').textContent=t[1];document.getElementById('guideText').textContent=t[2];
+}
+function render(){
+ const el=document.getElementById('board');const river=el.querySelector('.river');el.innerHTML='';el.appendChild(river);
+ for(let r=0;r<10;r++)for(let c=0;c<9;c++){
+   const sq=document.createElement('button');sq.className='square';sq.dataset.r=r;sq.dataset.c=c;
+   if(selected&&selected.r===r&&selected.c===c)sq.classList.add('selected');
+   if(last&&last.r===r&&last.c===c)sq.classList.add('last');
+   const lm=legal.find(m=>m.r===r&&m.c===c);if(lm)sq.classList.add(lm.capture?'capture':'hint');
+   if(hintMove&&hintMove.fr===r&&hintMove.fc===c)sq.style.background='#bfdbfe88';
+   if(hintMove&&hintMove.tr===r&&hintMove.tc===c)sq.style.background='#86efac88';
+   const p=board[r][c];if(p){const pc=document.createElement('span');pc.className='piece '+(p.c===R?'red':'black');pc.textContent=chars[p.c][p.t];pc.title=(p.c===R?'Đỏ ':'Đen ')+names[p.t];sq.appendChild(pc)}
+   sq.onclick=()=>tap(r,c);el.appendChild(sq);
+ }
+ document.getElementById('turn').innerHTML='Lượt: '+(turn===R?'🔴 Đỏ':'⚫ Đen')+(isInCheck(board,turn)?' · ⚠️ Đang bị chiếu!':'');
+ document.getElementById('modeBadge').textContent=mode==='ai'?'BÉ ĐỎ · MÁY ĐEN':'HAI NGƯỜI';
+}
+function tap(r,c){
+ if(finished||aiBusy)return;
+ if(mode==='ai'&&turn===B)return;
+ hintMove=null;
+ const p=board[r][c];
+ if(selected){
+   const m=legal.find(x=>x.r===r&&x.c===c);
+   if(m){move(selected.r,selected.c,r,c,false);return}
+   if(p&&p.c===turn){select(r,c);return}
+   selected=null;legal=[];setGuide(null);document.getElementById('msg').textContent='Chọn một quân cùng màu với bên đang đến lượt.';render();return;
+ }
+ if(p&&p.c===turn)select(r,c);else document.getElementById('msg').textContent='Đến lượt '+(turn===R?'Đỏ':'Đen')+'. Hãy chọn quân đúng màu.';
+}
+function select(r,c){
+ selected={r:r,c:c};legal=legalMoves(board,r,c);const p=board[r][c];setGuide(p);
+ document.getElementById('msg').textContent=names[p.t]+' đang được chọn · '+legal.length+' nước có thể đi.';
+ render();
+}
+function move(fr,fc,tr,tc,fromAI){
+ const captured=board[tr][tc];history.push({board:clone(board),turn:turn,last:last});
+ board[tr][tc]=board[fr][fc];board[fr][fc]=null;last={r:tr,c:tc};selected=null;legal=[];hintMove=null;setGuide(board[tr][tc]);
+ if(captured&&captured.t==='G'){finish(turn);return}
+ turn=turn===R?B:R;
+ const moves=allMoves(turn,board);
+ if(!moves.length){finish(turn===R?B:R);return}
+ document.getElementById('msg').textContent=fromAI?'🤖 Máy đã đi. Đến lượt con!':(isInCheck(board,turn)?'⚠️ Chiếu Tướng! Hãy bảo vệ Tướng.':'Nước đi hợp lệ 👍');
+ render();
+ if(mode==='ai'&&turn===B&&!finished)window.setTimeout(aiMove,420);
+}
+function scoreMove(m){
+ const target=board[m.tr][m.tc];let s=(target?values[target.t]:0)*10+Math.random()*8;
+ const nb=clone(board);nb[m.tr][m.tc]=nb[m.fr][m.fc];nb[m.fr][m.fc]=null;
+ if(isInCheck(nb,R))s+=28;
+ if(target&&target.t==='G')s+=99999;
+ const p=board[m.fr][m.fc];if(p.t==='S'&&crossed(B,m.tr))s+=4;
+ return s;
+}
+function aiMove(){
+ if(finished||mode!=='ai'||turn!==B)return;aiBusy=true;
+ const ms=allMoves(B,board);if(!ms.length){aiBusy=false;finish(R);return}
+ ms.sort((a,b)=>scoreMove(b)-scoreMove(a));const pool=ms.slice(0,Math.min(4,ms.length));const chosen=pool[Math.floor(Math.random()*pool.length)];
+ aiBusy=false;move(chosen.fr,chosen.fc,chosen.tr,chosen.tc,true);
+}
+function bestHint(){
+ if(finished||aiBusy)return;const ms=allMoves(turn,board);if(!ms.length)return;
+ ms.sort((a,b)=>{const ta=board[a.tr][a.tc],tb=board[b.tr][b.tc];return (tb?values[tb.t]:0)-(ta?values[ta.t]:0)});
+ hintMove=ms[0];selected={r:hintMove.fr,c:hintMove.fc};legal=legalMoves(board,hintMove.fr,hintMove.fc);setGuide(board[hintMove.fr][hintMove.fc]);
+ document.getElementById('msg').textContent='💡 Thử '+names[board[hintMove.fr][hintMove.fc].t]+' từ '+coord(hintMove.fr,hintMove.fc)+' đến '+coord(hintMove.tr,hintMove.tc)+'.';
+ render();
+}
+function undo(){
+ if(!history.length||aiBusy)return;
+ if(mode==='ai'){
+   let h=history.pop();if(h){board=h.board;turn=h.turn;last=h.last}
+   if(turn===B&&history.length){h=history.pop();board=h.board;turn=h.turn;last=h.last}
+ }else{const h=history.pop();board=h.board;turn=h.turn;last=h.last}
+ finished=false;selected=null;legal=[];hintMove=null;setGuide(null);document.getElementById('result').classList.remove('show');document.getElementById('msg').textContent='↶ Đã quay lại nước trước.';render();
+}
+function finish(winner){
+ finished=true;render();document.getElementById('resultTitle').textContent=winner===R?'🎉 Đỏ thắng!':'🎉 Đen thắng!';
+ document.getElementById('resultText').textContent=mode==='ai'?(winner===R?'Xuất sắc! Con đã thắng máy rồi!':'Máy thắng ván này. Chơi lại và thử một chiến thuật mới nhé!'):'Một ván cờ rất hay! Đổi bên và chơi lại nhé.';
+ document.getElementById('result').classList.add('show');
+}
+function reset(){
+ board=initial();turn=R;selected=null;legal=[];history=[];finished=false;last=null;aiBusy=false;hintMove=null;setGuide(null);document.getElementById('result').classList.remove('show');document.getElementById('msg').textContent='Chạm một quân Đỏ để xem các nước có thể đi.';render();
+}
+function setMode(m){
+ mode=m;document.getElementById('aiMode').classList.toggle('on',m==='ai');document.getElementById('twoMode').classList.toggle('on',m==='two');reset();
+}
+document.getElementById('aiMode').onclick=()=>setMode('ai');
+document.getElementById('twoMode').onclick=()=>setMode('two');
+document.getElementById('newBtn').onclick=reset;
+document.getElementById('againBtn').onclick=reset;
+document.getElementById('undoBtn').onclick=undo;
+document.getElementById('hintBtn').onclick=bestHint;
+reset();
+})();
+</script>
+</body>
+</html>
