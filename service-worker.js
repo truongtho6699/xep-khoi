@@ -1,9 +1,9 @@
-const CACHE_VERSION="game-ca-voi-v24";
+const CACHE_VERSION="game-ca-voi-v25";
 const GAME_PAGES=new Set(["/xep-khoi/xep-khoi.html","/xep-khoi/noi-so.html"]);
-const FIT_PAGES=new Set(["/xep-khoi/caro.html","/xep-khoi/lat-the.html","/xep-khoi/ghep-hinh.html","/xep-khoi/me-cung.html","/xep-khoi/dem-nhanh.html","/xep-khoi/tim-khac-nhau.html"]);
-const CORE_ASSETS=["./","./index.html","./caro.html","./lat-the.html","./ghep-hinh.html","./me-cung.html","./dem-nhanh.html","./tim-khac-nhau.html","./kid-game-fit.css"];
+const FIT_PAGES=new Set(["/xep-khoi/caro.html","/xep-khoi/lat-the.html","/xep-khoi/ghep-hinh.html","/xep-khoi/me-cung.html","/xep-khoi/dem-nhanh.html","/xep-khoi/tim-khac-nhau.html","/xep-khoi/co-tuong.html"]);
+const CORE_ASSETS=["./","./index.html","./caro.html","./lat-the.html","./ghep-hinh.html","./me-cung.html","./dem-nhanh.html","./tim-khac-nhau.html","./co-tuong.html","./kid-game-fit.css"];
 const INJECT=`\n<script type="module" src="./supabase-gcv.js?v=20"></script>\n<script src="./game-sync.js?v=20"></script>\n`;
-const FIT_LINK='<link rel="stylesheet" href="./kid-game-fit.css?v=24">';
+const FIT_LINK='<link rel="stylesheet" href="./kid-game-fit.css?v=25">';
 
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_VERSION).then(c=>c.addAll(CORE_ASSETS)).catch(()=>{}).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
