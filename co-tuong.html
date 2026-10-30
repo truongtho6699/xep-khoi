@@ -15,7 +15,15 @@ button{font:inherit}
 .back{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:14px;background:#fff;text-decoration:none;color:#111827;font-size:23px;font-weight:900;box-shadow:0 5px 16px #0001}
 .title{flex:1;min-width:0}.title h1{margin:0;font-size:24px;white-space:nowrap}.title p{margin:3px 0 0;color:#64748b;font-size:12px}
 .card{background:#ffffffde;border:1px solid #fff;border-radius:20px;padding:12px;box-shadow:0 8px 26px #92400e12;margin-bottom:10px}
+.main-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.main-tab{border:0;border-radius:16px;min-height:52px;padding:10px;font-weight:900;font-size:16px;background:#fff;box-shadow:0 5px 16px #0001;color:#475569}
+.main-tab.on{background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;box-shadow:0 6px 16px #2563eb35}
 .mode-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.study-pieces{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}
+.study-piece{border:0;border-radius:13px;padding:8px 3px;background:#fff7ed;color:#9a3412;font-weight:900;font-size:12px}
+.study-piece.on{background:#f97316;color:#fff}
+.study-head{font-weight:900;color:#0f766e;font-size:14px}
+.hidden{display:none!important}
 .mode{border:0;border-radius:14px;min-height:46px;padding:9px 7px;background:#fef3c7;color:#92400e;font-weight:900}
 .mode.on{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;box-shadow:0 5px 14px #f59e0b45}
 .status{display:flex;align-items:center;gap:8px;margin-top:9px}.turn{flex:1;font-weight:900}.badge{font-size:11px;font-weight:900;background:#f1f5f9;border-radius:99px;padding:7px 10px}
@@ -52,13 +60,24 @@ background-color:var(--wood)}
 <body>
 <div class="app">
   <div class="top"><a class="back" href="./" aria-label="Quay lại">←</a><div class="title"><h1>🏯 Cờ Tướng vui</h1><p>Học cách đi từng quân · Chơi cùng máy hoặc 2 người</p></div></div>
+  <div class="main-tabs"><button id="studyTab" class="main-tab on">📚 Học tập</button><button id="playTab" class="main-tab">🎮 Chơi</button></div>
   <div class="layout">
     <div class="board-shell"><div id="board" class="board"><div class="river"><span>楚 河</span><span>漢 界</span></div></div></div>
     <div class="side">
-      <div class="card">
+      <div id="studyPanel" class="card">
+        <div class="study-head">🌟 Chọn quân muốn học</div>
+        <div id="studyPieces" class="study-pieces">
+          <button class="study-piece on" data-piece="R">🚗 Xe</button><button class="study-piece" data-piece="H">🐴 Mã</button>
+          <button class="study-piece" data-piece="C">🎯 Pháo</button><button class="study-piece" data-piece="S">🪖 Tốt</button>
+          <button class="study-piece" data-piece="E">🐘 Tượng</button><button class="study-piece" data-piece="A">🛡️ Sĩ</button>
+          <button class="study-piece" data-piece="G">👑 Tướng</button>
+        </div>
+        <div class="status"><div id="turn" class="turn">Đang học: 🚗 Xe</div><div id="modeBadge" class="badge">HỌC TẬP</div></div>
+        <div id="msg" class="msg">Chạm một chấm xanh để thử cách đi của quân Xe.</div>
+      </div>
+      <div id="playPanel" class="card hidden">
         <div class="mode-row"><button id="aiMode" class="mode on">🤖 Chơi với máy</button><button id="twoMode" class="mode">👫 Hai người</button></div>
-        <div class="status"><div id="turn" class="turn">Lượt: 🔴 Đỏ</div><div id="modeBadge" class="badge">BÉ ĐỎ · MÁY ĐEN</div></div>
-        <div id="msg" class="msg">Chạm một quân Đỏ để xem các nước có thể đi.</div>
+        <div class="status"><div class="turn">Chọn cách chơi</div><div class="badge">CHƠI</div></div>
       </div>
       <div class="card guide"><div id="guideIco" class="guide-ico">🎓</div><div><b id="guideTitle">Cô giáo Cá Voi</b><p id="guideText">Chọn một quân cờ. Cô giáo sẽ chỉ cách quân đó di chuyển và đánh dấu các ô con có thể đi.</p></div></div>
       <div class="card"><div class="actions"><button id="hintBtn" class="action hintbtn">💡 Gợi ý</button><button id="undoBtn" class="action">↶ Đi lại</button><button id="newBtn" class="action primary">🔄 Ván mới</button></div><div class="legend"><span><i class="dot"></i> Ô có thể đi</span><span><i class="ring"></i> Có thể ăn quân</span></div></div>
@@ -81,7 +100,7 @@ C:['🎯','Pháo','Pháo đi thẳng như Xe. Muốn ăn quân, Pháo phải nh�
 S:['🪖','Tốt','Tốt tiến 1 ô về phía trước. Qua sông rồi, Tốt có thể đi thêm sang trái hoặc phải, nhưng không được lùi.']
 };
 const values={G:10000,R:90,C:45,H:42,E:22,A:22,S:12};
-let board=[],turn=R,selected=null,legal=[],mode='ai',history=[],finished=false,last=null,aiBusy=false,hintMove=null;
+let board=[],turn=R,selected=null,legal=[],mode='ai',appMode='study',studyPiece='R',history=[],finished=false,last=null,aiBusy=false,hintMove=null;
 
 function P(t,c){return {t:t,c:c}}
 function initial(){
@@ -158,6 +177,24 @@ function setGuide(piece){
  const t=piece?tips[piece.t]:['🎓','Cô giáo Cá Voi','Chọn một quân cờ. Cô giáo sẽ chỉ cách quân đó di chuyển và đánh dấu các ô con có thể đi.'];
  document.getElementById('guideIco').textContent=t[0];document.getElementById('guideTitle').textContent=t[1];document.getElementById('guideText').textContent=t[2];
 }
+function studySetup(type){
+ studyPiece=type||studyPiece;board=Array.from({length:10},()=>Array(9).fill(null));
+ const pos={R:[7,4],H:[7,4],C:[7,4],S:[6,4],E:[9,2],A:[9,3],G:[9,4]}[studyPiece];
+ board[pos[0]][pos[1]]=P(studyPiece,R);turn=R;selected={r:pos[0],c:pos[1]};
+ legal=pseudoMoves(board,pos[0],pos[1],false);last=null;finished=false;history=[];hintMove=null;setGuide(board[pos[0]][pos[1]]);
+ const t=tips[studyPiece];document.getElementById('turn').textContent='Đang học: '+t[0]+' '+t[1];
+ document.getElementById('modeBadge').textContent='HỌC TẬP';
+ document.getElementById('msg').textContent='Chạm một chấm xanh để thử cách đi của quân '+names[studyPiece]+'.';
+ render();
+}
+function setAppMode(m){
+ appMode=m;document.getElementById('studyTab').classList.toggle('on',m==='study');document.getElementById('playTab').classList.toggle('on',m==='play');
+ document.getElementById('studyPanel').classList.toggle('hidden',m!=='study');document.getElementById('playPanel').classList.toggle('hidden',m!=='play');
+ document.getElementById('undoBtn').classList.toggle('hidden',m==='study');
+ document.getElementById('hintBtn').textContent=m==='study'?'✨ Chỉ lại':'💡 Gợi ý';
+ document.getElementById('newBtn').textContent=m==='study'?'🔄 Đặt lại':'🔄 Ván mới';
+ if(m==='study')studySetup(studyPiece);else reset();
+}
 function render(){
  const el=document.getElementById('board');const river=el.querySelector('.river');el.innerHTML='';el.appendChild(river);
  for(let r=0;r<10;r++)for(let c=0;c<9;c++){
@@ -170,10 +207,19 @@ function render(){
    const p=board[r][c];if(p){const pc=document.createElement('span');pc.className='piece '+(p.c===R?'red':'black');pc.textContent=chars[p.c][p.t];pc.title=(p.c===R?'Đỏ ':'Đen ')+names[p.t];sq.appendChild(pc)}
    sq.onclick=()=>tap(r,c);el.appendChild(sq);
  }
- document.getElementById('turn').innerHTML='Lượt: '+(turn===R?'🔴 Đỏ':'⚫ Đen')+(isInCheck(board,turn)?' · ⚠️ Đang bị chiếu!':'');
- document.getElementById('modeBadge').textContent=mode==='ai'?'BÉ ĐỎ · MÁY ĐEN':'HAI NGƯỜI';
+ if(appMode==='play'){
+   document.getElementById('turn').innerHTML='Lượt: '+(turn===R?'🔴 Đỏ':'⚫ Đen')+(isInCheck(board,turn)?' · ⚠️ Đang bị chiếu!':'');
+   document.getElementById('modeBadge').textContent=mode==='ai'?'BÉ ĐỎ · MÁY ĐEN':'HAI NGƯỜI';
+ }
 }
 function tap(r,c){
+ if(appMode==='study'){
+   if(!selected)return;
+   const m=legal.find(x=>x.r===r&&x.c===c);
+   if(!m)return;
+   const p=board[selected.r][selected.c];board[selected.r][selected.c]=null;board[r][c]=p;selected={r:r,c:c};last={r:r,c:c};
+   legal=pseudoMoves(board,r,c,false);document.getElementById('msg').textContent='✅ Đúng rồi! '+names[p.t]+' có thể đi như vậy. Thử tiếp một chấm xanh khác nhé!';render();return;
+ }
  if(finished||aiBusy)return;
  if(mode==='ai'&&turn===B)return;
  hintMove=null;
@@ -217,6 +263,7 @@ function aiMove(){
  aiBusy=false;move(chosen.fr,chosen.fc,chosen.tr,chosen.tc,true);
 }
 function bestHint(){
+ if(appMode==='study'){studySetup(studyPiece);return}
  if(finished||aiBusy)return;const ms=allMoves(turn,board);if(!ms.length)return;
  ms.sort((a,b)=>{const ta=board[a.tr][a.tc],tb=board[b.tr][b.tc];return (tb?values[tb.t]:0)-(ta?values[ta.t]:0)});
  hintMove=ms[0];selected={r:hintMove.fr,c:hintMove.fc};legal=legalMoves(board,hintMove.fr,hintMove.fc);setGuide(board[hintMove.fr][hintMove.fc]);
@@ -237,18 +284,22 @@ function finish(winner){
  document.getElementById('result').classList.add('show');
 }
 function reset(){
+ if(appMode==='study'){studySetup(studyPiece);return}
  board=initial();turn=R;selected=null;legal=[];history=[];finished=false;last=null;aiBusy=false;hintMove=null;setGuide(null);document.getElementById('result').classList.remove('show');document.getElementById('msg').textContent='Chạm một quân Đỏ để xem các nước có thể đi.';render();
 }
 function setMode(m){
- mode=m;document.getElementById('aiMode').classList.toggle('on',m==='ai');document.getElementById('twoMode').classList.toggle('on',m==='two');reset();
+ appMode='play';mode=m;document.getElementById('aiMode').classList.toggle('on',m==='ai');document.getElementById('twoMode').classList.toggle('on',m==='two');reset();
 }
+document.getElementById('studyTab').onclick=()=>setAppMode('study');
+document.getElementById('playTab').onclick=()=>setAppMode('play');
+document.querySelectorAll('.study-piece').forEach(b=>b.onclick=()=>{document.querySelectorAll('.study-piece').forEach(x=>x.classList.toggle('on',x===b));studySetup(b.dataset.piece)});
 document.getElementById('aiMode').onclick=()=>setMode('ai');
 document.getElementById('twoMode').onclick=()=>setMode('two');
 document.getElementById('newBtn').onclick=reset;
 document.getElementById('againBtn').onclick=reset;
 document.getElementById('undoBtn').onclick=undo;
 document.getElementById('hintBtn').onclick=bestHint;
-reset();
+setAppMode('study');
 })();
 </script>
 </body>
